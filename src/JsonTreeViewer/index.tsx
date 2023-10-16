@@ -8,7 +8,8 @@ export const JsonTreeViewer = () => {
 
   return (
     <div className={'flex flex-col justify-start w-full relative overflow-auto'}>
-      <NodeRender node={'root'} value={jsonSelected.content} />
+      <p className={'top-0 sticky bg-gray-50 z-30'}>{jsonSelected.name}</p>
+      <NodeRender value={jsonSelected.content} />
     </div>
   );
 };

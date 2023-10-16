@@ -21,7 +21,7 @@ export const PrimitiveNode = ({ node, value }: PrimitiveNodeProps) => {
   };
 
   return (
-    <div className={'flex flex-nowrap gap-1 ml-6'}>
+    <div className={'flex flex-nowrap gap-1 ml-6 whitespace-nowrap'}>
       {node && <p className={'text-left text-red-400'}>{node}: </p>}
       <p className={`text-left ${colorByType()}`}>{renderValue()}</p>
     </div>
