@@ -9,7 +9,7 @@ export const ToggleExpandedIcon = ({ isExpanded, onToggle }: ToggleExpandedIconP
   const onKeyUp = (e: KeyboardEvent<HTMLSpanElement>) => {
     e.preventDefault();
     if (e.code === 'Tab') return;
-    const toggleKey = ['Space', 'Enter'];
+    const toggleKey = ['Space'];
     if (toggleKey.includes(e.code)) onToggle();
     if (e.code === 'ArrowLeft' && isExpanded) onToggle();
     if (e.code === 'ArrowRight' && !isExpanded) onToggle();
@@ -19,6 +19,7 @@ export const ToggleExpandedIcon = ({ isExpanded, onToggle }: ToggleExpandedIconP
     <button
       className={'w-5 h-5 text-center border leading-none rounded bg-gray-200 cursor-pointer absolute left-0 text-xs'}
       onKeyUp={onKeyUp}
+      onClick={onToggle}
     >
       {isExpanded ? '-' : '+'}
     </button>
