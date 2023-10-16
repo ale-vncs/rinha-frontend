@@ -6,19 +6,19 @@ interface FileData {
   isError: boolean;
 }
 
-interface UploadProviderContext {
+interface JsonProviderContext {
   readFile: (file: File) => void;
   files: FileData[];
   jsonSelected: FileData | null;
 }
 
-export const Context = createContext<UploadProviderContext>({
+export const Context = createContext<JsonProviderContext>({
   readFile: null as never,
   files: null as never,
   jsonSelected: null,
 });
 
-export const UploadProvider = ({ children }: PropsWithChildren) => {
+export const JsonProvider = ({ children }: PropsWithChildren) => {
   const [fileData, setFileData] = useState<FileData[]>([]);
   const [jsonSelected, setJsonSelected] = useState<FileData | null>(null);
 
@@ -27,7 +27,7 @@ export const UploadProvider = ({ children }: PropsWithChildren) => {
     setJsonSelected({ name, content, isError: !content });
   };
 
-  const readFile: UploadProviderContext['readFile'] = (file) => {
+  const readFile: JsonProviderContext['readFile'] = (file) => {
     const fileRead = new FileReader();
     fileRead.onload = function (e) {
       const content = e.target?.result as string;

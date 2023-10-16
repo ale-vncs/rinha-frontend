@@ -11,8 +11,8 @@ export const ExpandedWrapper = ({
 
   node = node ? `${node}: ` : '';
 
-  const NodeLabel = () => {
-    return (
+  return (
+    <div className={'flex flex-col flex-nowrap ml-6'}>
       <div className={'flex flex-row flex-nowrap gap-1 items-center'}>
         <ToggleExpandedIcon isExpanded={isExpanded} onToggle={toggleExpanded} />
         <div className={'flex flex-nowrap gap-1'}>
@@ -21,12 +21,6 @@ export const ExpandedWrapper = ({
           {!isExpanded && <p className={'text-yellow-400'}>... {charLast}</p>}
         </div>
       </div>
-    );
-  };
-
-  return (
-    <div className={'flex flex-col flex-nowrap ml-6'}>
-      <NodeLabel />
       <div className={`${!isExpanded && 'hidden'} flex flex-col flex-nowrap`}>
         <div className={'flex flex-nowrap'}>
           <div className={'w-px-1 border-l border-gray-300'} />

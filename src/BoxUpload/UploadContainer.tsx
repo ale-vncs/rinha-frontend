@@ -1,9 +1,9 @@
 import { ChangeEvent, DragEvent, useState } from 'react';
 import { clsx } from 'clsx';
-import { useUploadProvider } from '../hooks/useUploadProvider.ts';
+import { useJsonProvider } from '../hooks/useJsonProvider.ts';
 
 export const UploadContainer = () => {
-  const { readFile } = useUploadProvider();
+  const { readFile } = useJsonProvider();
 
   const [isDragging, setIsDragging] = useState(false);
 

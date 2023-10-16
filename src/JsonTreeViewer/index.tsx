@@ -1,8 +1,8 @@
 import { NodeRender } from './NodeRender.tsx';
-import { useUploadProvider } from '../hooks/useUploadProvider.ts';
+import { useJsonProvider } from '../hooks/useJsonProvider.ts';
 
 export const JsonTreeViewer = () => {
-  const { jsonSelected } = useUploadProvider();
+  const { jsonSelected } = useJsonProvider();
 
   if (!jsonSelected) return <></>;
 

@@ -10,7 +10,7 @@ export const ObjectNode = ({ node, value }: ObjectNodeProps) => {
   return (
     <ExpandedWrapper node={node} charWrapper={['{', '}']}>
       {Object.entries(value).map(([key, value]) => (
-        <NodeRender node={key} value={value} />
+        <NodeRender key={`${node}-${key}`} node={key} value={value} />
       ))}
     </ExpandedWrapper>
   );
