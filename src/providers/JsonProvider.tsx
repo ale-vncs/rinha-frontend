@@ -29,7 +29,6 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
     const id = (Math.random() + 1).toString(36).substring(2);
     const jsonInfo: FileData = { name, id, status: 'LOADING', content: '' };
     setFileData((data) => [...data, jsonInfo]);
-    setJsonSelected(jsonInfo);
     return id;
   };
 
@@ -70,7 +69,6 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
       .pipeTo(
         new WritableStream<string>({
           write(chunk) {
-            console.log(jsonId, chunk);
             setContentByJsonId(jsonId, chunk);
           },
         }),

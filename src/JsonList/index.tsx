@@ -16,7 +16,7 @@ export const JsonList = () => {
   };
 
   return (
-    <div className={'flex gap-2 h-full w-full flex-col overflow-auto'}>
+    <div className={'flex gap-2 h-full w-96 flex-col overflow-auto'}>
       {files.map((item) => {
         return (
           <div
