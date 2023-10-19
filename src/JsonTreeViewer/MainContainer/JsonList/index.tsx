@@ -14,7 +14,7 @@ export const JsonList = () => {
 
   const onClickCard = (jsonId: string) => {
     const jsonData = files.find((item) => item.id === jsonId);
-    if (!jsonData || jsonData?.status === 'ERROR') return;
+    if (!jsonData) return;
     selectJsonById(jsonData.id);
   };
 

@@ -1,5 +1,5 @@
-const setContentByJsonId = (id: string, content: string[] | null) => {
-  self.postMessage({ id, content });
+const setContentByJsonId = (id: string, content: string[], isError = false) => {
+  self.postMessage({ id, content, isError });
 };
 
 self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
@@ -33,8 +33,8 @@ self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
         },
       }),
     )
-    .catch((err) => {
+    .catch((err: Error) => {
       console.error(err);
-      setContentByJsonId(jsonId, null);
+      setContentByJsonId(jsonId, [err.message], true);
     });
 };

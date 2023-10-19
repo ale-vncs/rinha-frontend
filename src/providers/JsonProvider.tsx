@@ -34,13 +34,13 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
     return id;
   };
 
-  const setContentByJsonId = (id: string, content: string[] | null) => {
-    const jsonStatus: FileData['status'] = content ? 'AVAILABLE' : 'ERROR';
+  const setContentByJsonId = (id: string, content: string[], isError: boolean) => {
+    const jsonStatus: FileData['status'] = !isError ? 'AVAILABLE' : 'ERROR';
     setFileData((data) => {
       return data.map((item) => {
         if (item.id === id) {
           item.status = jsonStatus;
-          item.content = content ?? ['Invalid Json'];
+          item.content = content;
         }
         return item;
       });
@@ -52,8 +52,9 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
 
     readFileWorker.postMessage({ jsonId, file });
 
-    readFileWorker.onmessage = (e: MessageEvent<{ id: string; content: string[] }>) => {
-      setContentByJsonId(e.data.id, e.data.content);
+    readFileWorker.onmessage = (e: MessageEvent<{ id: string; content: string[]; isError: boolean }>) => {
+      const { isError, content, id } = e.data;
+      setContentByJsonId(id, content, isError);
     };
   };
 
