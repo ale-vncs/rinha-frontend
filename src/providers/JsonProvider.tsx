@@ -1,10 +1,10 @@
-import { createContext, PropsWithChildren, useState } from 'react';
+import { createContext, PropsWithChildren, useMemo, useState } from 'react';
 
-interface FileData {
+export interface FileData {
   id: string;
   name: string;
   status: 'LOADING' | 'ERROR' | 'AVAILABLE';
-  content: string;
+  content: string[];
 }
 
 interface JsonProviderContext {
@@ -25,21 +25,22 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
   const [fileData, setFileData] = useState<FileData[]>([]);
   const [jsonSelected, setJsonSelected] = useState<FileData | null>(null);
 
+  const readFileWorker = useMemo(() => new Worker(new URL('../workers/readFileWorker.ts', import.meta.url)), []);
+
   const addJson = (name: string) => {
     const id = (Math.random() + 1).toString(36).substring(2);
-    const jsonInfo: FileData = { name, id, status: 'LOADING', content: '' };
+    const jsonInfo: FileData = { name, id, status: 'LOADING', content: [] };
     setFileData((data) => [...data, jsonInfo]);
     return id;
   };
 
-  const setContentByJsonId = (id: string, content: string | null) => {
+  const setContentByJsonId = (id: string, content: string[] | null) => {
     const jsonStatus: FileData['status'] = content ? 'AVAILABLE' : 'ERROR';
-
     setFileData((data) => {
       return data.map((item) => {
         if (item.id === id) {
           item.status = jsonStatus;
-          item.content = content ?? 'Invalid Json';
+          item.content = content ?? ['Invalid Json'];
         }
         return item;
       });
@@ -49,34 +50,11 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
   const readFile: JsonProviderContext['readFile'] = (file) => {
     const jsonId = addJson(file.name);
 
-    const parseJson = () => {
-      let jsonBuffer = '';
+    readFileWorker.postMessage({ jsonId, file });
 
-      return new TransformStream<string>({
-        transform(chunk) {
-          jsonBuffer += chunk;
-        },
-        flush(controller) {
-          controller.enqueue(JSON.parse(jsonBuffer));
-        },
-      });
+    readFileWorker.onmessage = (e: MessageEvent<{ id: string; content: string[] }>) => {
+      setContentByJsonId(e.data.id, e.data.content);
     };
-
-    file
-      .stream()
-      .pipeThrough(new TextDecoderStream())
-      .pipeThrough(parseJson())
-      .pipeTo(
-        new WritableStream<string>({
-          write(chunk) {
-            setContentByJsonId(jsonId, chunk);
-          },
-        }),
-      )
-      .catch((err) => {
-        console.log(err);
-        setContentByJsonId(jsonId, null);
-      });
   };
 
   const selectJsonById = (id: string) => {

@@ -1,6 +1,6 @@
 import { useJsonProvider } from '../../hooks/useJsonProvider.ts';
 import { UploadContainer } from '../BoxUpload/UploadContainer.tsx';
-import { Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 
 export const Header = () => {
   const { files } = useJsonProvider();
@@ -11,7 +11,11 @@ export const Header = () => {
         Json Tree Viewer
       </Typography>
       <Typography>Simple JSON Viewer that runs completely on-client. No data exchange</Typography>
-      {!files.length && <UploadContainer />}
+      {!files.length && (
+        <Box width={300} display={'flex'}>
+          <UploadContainer />
+        </Box>
+      )}
     </Stack>
   );
 };

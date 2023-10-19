@@ -1,15 +1,14 @@
-import { UploadContainer } from './BoxUpload/UploadContainer.tsx';
-import { JsonTreeViewer } from './JsonTreeViewer';
-import { JsonList } from './JsonList';
+import { Container, Stack } from '@mui/material';
+import { Header } from './JsonTreeViewer/Header';
+import { MainContainer } from './JsonTreeViewer/MainContainer';
 
 export const App = () => {
   return (
-    <div className={'flex w-screen h-screen bg-gray-50 justify-center items-center flex-col'}>
-      <UploadContainer />
-      <div className={'w-full px-2 flex flex-nowrap gap-2 mt-3 overflow-auto py-3'}>
-        <JsonList />
-        <JsonTreeViewer />
-      </div>
-    </div>
+    <Container sx={{ height: '100%' }}>
+      <Stack direction={'column'} alignItems={'center'} height={'100%'} gap={2} overflow={'auto'}>
+        <Header />
+        <MainContainer />
+      </Stack>
+    </Container>
   );
 };
