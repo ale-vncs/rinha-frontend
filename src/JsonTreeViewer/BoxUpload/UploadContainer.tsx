@@ -1,11 +1,14 @@
 import { ChangeEvent, DragEvent, useState } from 'react';
-import { clsx } from 'clsx';
-import { useJsonProvider } from '../hooks/useJsonProvider.ts';
+import { useJsonProvider } from '../../hooks/useJsonProvider.ts';
+import { Box, Typography } from '@mui/material';
+import { useUploadContainerStyle } from './useUploadContainerStyle.ts';
 
 export const UploadContainer = () => {
   const { readFile } = useJsonProvider();
 
   const [isDragging, setIsDragging] = useState(false);
+
+  const classes = useUploadContainerStyle();
 
   const onDragEnter = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -25,6 +28,7 @@ export const UploadContainer = () => {
   const onSelectFile = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     readFileList(e.target.files);
+    e.target.value = '';
   };
 
   const readFileList = (files: FileList | null) => {
@@ -36,28 +40,15 @@ export const UploadContainer = () => {
   };
 
   return (
-    <div
-      className={clsx(
-        'w-96 rounded border-2 border-gray-400 border-dashed shadow text-center text-gray-600 hover:bg-blue-300 transition-colors',
-        {
-          'bg-blue-300': isDragging,
-        },
-      )}
+    <Box
+      component={'label'}
+      sx={classes('boxUpload', isDragging)}
       onDragOver={onDragEnter}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      <label className={'cursor-pointer'}>
-        <p className={'p-5'}>{isDragging ? 'Drop json' : 'Click or drag your json here'}</p>
-        <input
-          multiple
-          accept={'application/json'}
-          type={'file'}
-          id={'upload'}
-          className={'hidden'}
-          onChange={onSelectFile}
-        />
-      </label>
-    </div>
+      <Typography p={2}>{isDragging ? 'Drop json' : 'Click or drag your json here'}</Typography>
+      <input multiple accept={'application/json'} type={'file'} id={'upload'} onChange={onSelectFile} />
+    </Box>
   );
 };

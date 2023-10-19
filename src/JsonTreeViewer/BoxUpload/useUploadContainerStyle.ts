@@ -1,0 +1,33 @@
+import { makeSx } from '../../utils/makeSx.ts';
+import { grey } from '@mui/material/colors';
+
+export const useUploadContainerStyle = makeSx((theme) => {
+  return {
+    boxUpload: (isDragging: boolean) => ({
+      width: 300,
+      py: isDragging ? 3 : 0,
+      borderRadius: 2,
+      borderColor: theme.palette.grey.A200,
+      borderWidth: 2,
+      borderStyle: isDragging ? 'dashed' : 'none',
+      boxShadow: theme.shadows[4],
+      textAlign: 'center',
+      color: theme.palette.grey['600'],
+      cursor: 'pointer',
+      transition: theme.transitions.create(['background', 'padding'], {
+        easing: 'ease',
+        duration: 200,
+      }),
+      background: isDragging ? grey['400'] : grey['200'],
+      '&: hover': {
+        background: grey['400'],
+      },
+      '& > input': {
+        display: 'none',
+      },
+      '& > p': {
+        pointerEvents: 'none',
+      },
+    }),
+  };
+});
