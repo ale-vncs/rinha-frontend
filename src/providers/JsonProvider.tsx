@@ -1,4 +1,5 @@
-import { createContext, PropsWithChildren, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useState } from 'react';
+import { ReadFileWorkerReturn } from '../workers/readFileWorker.ts';
 
 export interface FileData {
   id: string;
@@ -25,8 +26,6 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
   const [fileData, setFileData] = useState<FileData[]>([]);
   const [jsonSelected, setJsonSelected] = useState<FileData | null>(null);
 
-  const readFileWorker = useMemo(() => new Worker(new URL('../workers/readFileWorker.ts', import.meta.url)), []);
-
   const addJson = (name: string) => {
     const id = (Math.random() + 1).toString(36).substring(2);
     const jsonInfo: FileData = { name, id, status: 'LOADING', content: [] };
@@ -48,19 +47,33 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
   };
 
   const readFile: JsonProviderContext['readFile'] = (file) => {
+    const readFileWorker = getWorker('readFileWorker');
+    const arr: string[] = [];
+
     const jsonId = addJson(file.name);
 
     readFileWorker.postMessage({ jsonId, file });
 
-    readFileWorker.onmessage = (e: MessageEvent<{ id: string; content: string[]; isError: boolean }>) => {
-      const { isError, content, id } = e.data;
-      setContentByJsonId(id, content, isError);
+    readFileWorker.onmessage = (e: MessageEvent<ReadFileWorkerReturn>) => {
+      const { isError, content, id, total, part } = e.data;
+      arr.push(...content);
+      if (total === part) {
+        setContentByJsonId(id, arr, isError);
+        readFileWorker.terminate();
+      }
     };
   };
 
   const selectJsonById = (id: string) => {
     const jsonData = fileData.find((item) => item.id === id);
-    if (jsonData) setJsonSelected(jsonData);
+    if (jsonData) {
+      setJsonSelected(jsonData);
+    }
+  };
+
+  const getWorker = (name: string) => {
+    const path = '../workers/' + name + '.ts';
+    return new Worker(new URL(path, import.meta.url), { type: 'module' });
   };
 
   return (

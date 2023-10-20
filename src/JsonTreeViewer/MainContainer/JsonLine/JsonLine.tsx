@@ -24,7 +24,7 @@ export const JsonLine = forwardRef<HTMLDivElement, JsonLineProps>(
     const COLLAPSE_BY_ATTR = 'data-collapse-by';
     const CAN_COLLAPSE_ATTR = 'data-can-collapse';
 
-    const f = () => {
+    const colorLine = () => {
       const keyBracket = /"(.+)": ({|\[)/; // "name": {
       const bracktes = /^\s+({|}|]|\[),?/; // \t [
       const numberValue = /(?<=.*:\s)[0-9.]+(?=,?)/; // "age": 4

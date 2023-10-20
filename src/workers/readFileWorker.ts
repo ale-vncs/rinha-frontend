@@ -1,5 +1,20 @@
+import chunk from 'lodash.chunk';
+
+export interface ReadFileWorkerReturn {
+  id: string;
+  content: string[];
+  isError: boolean;
+  part: number;
+  total: number;
+}
+
 const setContentByJsonId = (id: string, content: string[], isError = false) => {
-  self.postMessage({ id, content, isError });
+  const dataChunk = chunk(content, 25000);
+  const data: ReadFileWorkerReturn = { id, content, isError, part: 1, total: dataChunk.length };
+
+  dataChunk.forEach((chk, index) => {
+    self.postMessage({ ...data, content: chk, part: index + 1 });
+  });
 };
 
 self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
@@ -13,10 +28,10 @@ self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
         jsonBuffer += chunk;
       },
       flush(controller) {
-        console.time(`${jsonId} validate`);
+        console.time(`${jsonId} : ${file.name} validate`);
         jsonBuffer = JSON.stringify(JSON.parse(jsonBuffer), null, '\t');
         const jsonLines = jsonBuffer.split('\n');
-        console.timeEnd(`${jsonId} validate`);
+        console.timeEnd(`${jsonId} : ${file.name} validate`);
         controller.enqueue(jsonLines);
       },
     });
