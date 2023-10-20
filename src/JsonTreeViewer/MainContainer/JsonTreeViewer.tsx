@@ -39,16 +39,15 @@ export const JsonTreeViewer = () => {
     const lineData = data[index];
 
     return (
-      <div style={{ ...style, display: 'flex' }}>
-        <JsonLine
-          ref={rowRef}
-          lineNumber={index + 1}
-          lineData={lineData}
-          totalLine={data.length}
-          listRef={listRef}
-          handleCollapse={handleCollapse}
-        />
-      </div>
+      <JsonLine
+        ref={rowRef}
+        style={style}
+        lineNumber={index + 1}
+        lineData={lineData}
+        totalLine={data.length}
+        listRef={listRef}
+        handleCollapse={handleCollapse}
+      />
     );
   }, areEqual);
 

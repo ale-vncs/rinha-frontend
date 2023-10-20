@@ -21,10 +21,10 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
       alignItems: 'center',
       position: 'relative',
       whiteSpace: 'nowrap',
+      width: '100%',
       height: lineHeight,
-      overflow: 'hidden',
       fontSize: '1rem',
-      flexShrink: 0,
+      overflowY: 'clip',
       '&:hover': {
         background: 'rgba(83, 169, 255, 0.1)',
       },
@@ -80,7 +80,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
     nested: {
       borderLeft: '2px solid rgb(0, 0, 0, 0.05)',
       position: 'absolute',
-      left: `calc(10px * ${tabSize} - ${tabSize * 1.42}px)`,
+      left: `calc(10px * ${tabSize} - ${tabSize * 2.2}px)`,
       height: '100%',
     },
     preColor: {

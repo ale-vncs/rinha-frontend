@@ -1,4 +1,13 @@
-import { forwardRef, MouseEvent, RefObject, useEffect, useImperativeHandle, useRef } from 'react';
+import {
+  CSSProperties,
+  forwardRef,
+  Fragment,
+  MouseEvent,
+  RefObject,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import { Box } from '@mui/material';
 import { VariableSizeList } from 'react-window';
 import { useJsonLinesStyles } from './styles.ts';
@@ -15,12 +24,14 @@ interface JsonLineProps {
   totalLine: number;
   listRef?: RefObject<VariableSizeList<string[]>>;
   handleCollapse?: (param: HandleCollapseParam) => void;
+  style: CSSProperties;
 }
 
 export const JsonLine = forwardRef<HTMLDivElement, JsonLineProps>(
-  ({ lineNumber, lineData, totalLine, handleCollapse }, ref) => {
+  ({ lineNumber, lineData, totalLine, handleCollapse, style }, ref) => {
     const classes = useJsonLinesStyles({ totalLine, tabSize: 2 });
 
+    const isEnabledCollapse = false;
     const lineRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => lineRef.current!);
@@ -135,18 +146,20 @@ export const JsonLine = forwardRef<HTMLDivElement, JsonLineProps>(
 
     const generateBorderMarker = () => {
       if (!tabCount) return <></>;
-
       return (
         <>
-          {Array(tabCount + 1)
-            .fill(null)
-            .reduce((Prev, _, index) => {
-              return (
-                <Box className={index === tabCount ? 'nested' : undefined} sx={classes('nested')}>
-                  {Prev}
-                </Box>
-              );
-            })}
+          {Array(tabCount)
+            .fill('')
+            .reduce(
+              (Prev, _, index) => {
+                return (
+                  <Box className={index + 1 === tabCount ? 'nested' : undefined} sx={classes('nested')}>
+                    {Prev}
+                  </Box>
+                );
+              },
+              <Fragment />,
+            )}
         </>
       );
     };
@@ -180,11 +193,11 @@ export const JsonLine = forwardRef<HTMLDivElement, JsonLineProps>(
     }, []);
 
     return (
-      <Box id={lineId(lineNumber)} ref={lineRef} sx={classes('line')}>
+      <Box id={lineId(lineNumber)} ref={lineRef} sx={classes('line')} style={style}>
         <Box sx={classes('lineCount')}>
           <p>{lineNumber}</p>
         </Box>
-        {isOpenBracket && <input type="button" value="-" onClick={toggleCollapse} />}
+        {isOpenBracket && isEnabledCollapse && <input type="button" value="-" onClick={toggleCollapse} />}
         {generateBorderMarker()}
         <Box component={'pre'} sx={classes('preColor')}>
           {colorLine()}
