@@ -39,7 +39,7 @@ export const JsonTreeViewer = () => {
     const lineData = data[index];
 
     return (
-      <div style={{ ...style, overflow: 'hidden' }}>
+      <div style={{ ...style, display: 'flex' }}>
         <JsonLine
           ref={rowRef}
           lineNumber={index + 1}

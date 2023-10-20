@@ -24,6 +24,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
       height: lineHeight,
       overflow: 'hidden',
       fontSize: '1rem',
+      flexShrink: 0,
       '&:hover': {
         background: 'rgba(83, 169, 255, 0.1)',
       },

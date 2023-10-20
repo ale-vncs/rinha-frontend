@@ -161,10 +161,11 @@ export const JsonLine = forwardRef<HTMLDivElement, JsonLineProps>(
       const lineBeforeCurrent = document.getElementById(beforeLineId);
 
       if (isOpenBracket) {
-        lineRef.current.setAttribute(BRACKET_ATTR, '');
+        el.setAttribute(BRACKET_ATTR, '');
       }
 
       if (!lineBeforeCurrent) return;
+
       const canCollapseBy = (lineBeforeCurrent.getAttribute(COLLAPSE_BY_ATTR) ?? '').split(',').filter(Boolean);
       const hasAttr = lineBeforeCurrent.hasAttribute(BRACKET_ATTR);
 
@@ -174,8 +175,7 @@ export const JsonLine = forwardRef<HTMLDivElement, JsonLineProps>(
         if (hasAttr) canCollapseBy.push(collapseById);
         if (isCloseBracket) canCollapseBy.pop();
 
-        //lineRef.current.setAttribute(CAN_COLLAPSE_ATTR, '');
-        lineRef.current.setAttribute(COLLAPSE_BY_ATTR, canCollapseBy.join(','));
+        el.setAttribute(COLLAPSE_BY_ATTR, canCollapseBy.join(','));
       }
     }, []);
 
