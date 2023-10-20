@@ -12,7 +12,3 @@ body {
     height: 100vh;
 }
 
-.line-collapse {
-    height: 0 !important;
-    overflow: hidden;
-}

@@ -42,10 +42,9 @@ export const JsonList = () => {
           const isSelected = item.id === jsonSelected?.id;
 
           return (
-            <ButtonBase onClick={() => onClickCard(item.id)}>
+            <ButtonBase key={item.id} onClick={() => onClickCard(item.id)}>
               <Stack
                 component={Paper}
-                key={item.id}
                 variant={'outlined'}
                 justifyContent={'space-between'}
                 alignItems={'center'}

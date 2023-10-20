@@ -47,7 +47,7 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
   };
 
   const readFile: JsonProviderContext['readFile'] = (file) => {
-    const readFileWorker = getWorker('readFileWorker');
+    const readFileWorker = getReadFileWorker();
     const arr: string[] = [];
 
     const jsonId = addJson(file.name);
@@ -71,9 +71,8 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const getWorker = (name: string) => {
-    const path = '../workers/' + name + '.ts';
-    return new Worker(new URL(path, import.meta.url), { type: 'module' });
+  const getReadFileWorker = () => {
+    return new Worker(new URL('../workers/readFileWorker.ts', import.meta.url), { type: 'module' });
   };
 
   return (

@@ -1,16 +1,17 @@
 import { makeSx } from '../../../utils/makeSx.ts';
+import { grey } from '@mui/material/colors';
 
 export interface StyleProps {
   totalLine: number;
   tabSize: number;
 }
 
-export const useJsonLinesStyles = makeSx((_, props: StyleProps) => {
+export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
   const lineCountMargin = '20px';
   const lineHeight = 20;
   const { totalLine, tabSize } = props;
   const totalLineSpace = String(totalLine).length;
-  const fontSize = '0.8rem';
+  const fontSize = '0.65rem';
 
   return {
     line: {
@@ -21,6 +22,8 @@ export const useJsonLinesStyles = makeSx((_, props: StyleProps) => {
       position: 'relative',
       whiteSpace: 'nowrap',
       height: lineHeight,
+      overflow: 'hidden',
+      fontSize: '1rem',
       '&:hover': {
         background: 'rgba(83, 169, 255, 0.1)',
       },
@@ -57,6 +60,8 @@ export const useJsonLinesStyles = makeSx((_, props: StyleProps) => {
     },
     lineCount: {
       fontSize: fontSize,
+      fontFamily: theme.typography.fontFamily,
+      color: grey['500'],
       textAlign: 'center',
       marginRight: lineCountMargin,
       alignSelf: 'stretch',
@@ -77,11 +82,26 @@ export const useJsonLinesStyles = makeSx((_, props: StyleProps) => {
       left: `calc(10px * ${tabSize} - ${tabSize * 1.42}px)`,
       height: '100%',
     },
-    textKey: {
-      color: '#ffc250',
-    },
-    textValueString: {
-      color: '#02bd02',
+    preColor: {
+      fontFamily: 'monospace',
+      '& > .color-bracket': {
+        color: '#afafaf',
+      },
+      '& > .color-normal': {
+        color: grey['600'],
+      },
+      '& > .color-key': {
+        color: '#da6972',
+      },
+      '& > .color-string': {
+        color: '#8dbd6d',
+      },
+      '& > .color-number': {
+        color: '#e468cc',
+      },
+      '& > .color-boolean': {
+        color: '#d88f6d',
+      },
     },
   };
 });

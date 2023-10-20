@@ -1,9 +1,9 @@
 import { useJsonProvider } from '../../hooks/useJsonProvider.ts';
-import { ListChildComponentProps, VariableSizeList as List } from 'react-window';
+import { areEqual, ListChildComponentProps, VariableSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { Box, Divider, Paper } from '@mui/material';
-import { JsonLine } from './JsonLine/JsonLine.tsx';
-import { MouseEvent, useEffect, useRef } from 'react';
+import { HandleCollapseParam, JsonLine } from './JsonLine/JsonLine.tsx';
+import { memo, useEffect, useRef } from 'react';
 import { JsonNotSelected } from './JsonNotSelected.tsx';
 import { JsonHeader } from './JsonHeader';
 
@@ -18,7 +18,7 @@ export const JsonTreeViewer = () => {
   }
 
   function setRowHeight(index: number, size: number) {
-    listRef.current?.resetAfterIndex(0);
+    //listRef.current?.resetAfterIndex(0);
     rowHeights.current = { ...rowHeights.current, [index]: size };
   }
 
@@ -26,56 +26,36 @@ export const JsonTreeViewer = () => {
     listRef.current?.scrollToItem(0, 'start');
   }
 
-  const onClickCollapse = (ev: MouseEvent<HTMLInputElement>) => {
-    const COLLAPSE_BY_ATTR = 'data-collapse-by';
-
-    //const { value } = ev.currentTarget;
-    const id = ev.currentTarget.parentElement?.id ?? '';
-    const lineId = (lineNumber: number) => `json-line-${lineNumber}`;
-    const elList = document.querySelectorAll(`[${COLLAPSE_BY_ATTR}]`);
-    //const isCollapsed = value === '+';
-    elList.forEach((el) => {
-      const value = (el.getAttribute(COLLAPSE_BY_ATTR) ?? '').split(',').map(Number).map(lineId);
-      if (value.includes(id)) {
-        el.classList.add('line-collapse');
-        const elId = Number(el.id.replace(/\D/g, '')) - 1;
-        setRowHeight(elId, 0);
-      }
+  const handleCollapse = ({ divIndexList, divParentIndex, isCollapse }: HandleCollapseParam) => {
+    divIndexList.forEach((i) => {
+      setRowHeight(i, isCollapse ? 0 : 20);
     });
-    listRef.current?.resetAfterIndex(Number(id.replace(/\D/g, '')) - 1);
-    //value = isCollapsed ? '-' : '+';
+    listRef.current?.resetAfterIndex(divParentIndex);
   };
 
-  const Row = ({ index, style, data }: ListChildComponentProps<string[]>) => {
+  const Row = memo(({ index, style, data }: ListChildComponentProps<string[]>) => {
     const rowRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-      if (!rowRef.current) return;
-      if (!getRowHeight(index)) {
-        rowRef.current.classList.add('line-collapse');
-      } else {
-        setRowHeight(index, rowRef.current.clientHeight);
-      }
-      // eslint-disable-next-line
-    }, []);
+    const lineData = data[index];
 
     return (
-      <div style={style}>
+      <div style={{ ...style, overflow: 'hidden' }}>
         <JsonLine
           ref={rowRef}
           lineNumber={index + 1}
-          lineData={data[index]}
+          lineData={lineData}
           totalLine={data.length}
           listRef={listRef}
-          onClickCollapse={onClickCollapse}
+          handleCollapse={handleCollapse}
         />
       </div>
     );
-  };
+  }, areEqual);
 
   useEffect(() => {
     if (!jsonSelected) return;
     scrollTop();
+    rowHeights.current = {};
   }, [jsonSelected]);
 
   if (!jsonSelected) return <JsonNotSelected />;
@@ -92,7 +72,7 @@ export const JsonTreeViewer = () => {
     >
       <JsonHeader jsonSelected={jsonSelected} />
       <Divider />
-      <Box overflow={'auto'} height={'100%'}>
+      <Box flex={1} width={'100%'}>
         <AutoSizer>
           {({ height, width }) => (
             <List
@@ -102,7 +82,6 @@ export const JsonTreeViewer = () => {
               itemSize={getRowHeight}
               width={width}
               ref={listRef}
-              className={'list-virtualized'}
             >
               {Row}
             </List>
