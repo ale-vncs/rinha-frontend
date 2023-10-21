@@ -83,7 +83,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
     nested: {
       borderLeft: '2px solid rgb(0, 0, 0, 0.05)',
       position: 'absolute',
-      left: `calc(10px * ${tabSize} - ${tabSize * 1.48}px)`,
+      left: `calc(${tabSize * 8.78}px - 2px)`,
       height: '100%',
     },
     preColor: {

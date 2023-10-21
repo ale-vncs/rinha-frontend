@@ -70,7 +70,6 @@ export const JsonFeatureProvider = ({
 
       worker.onmessage = (ev: MessageEvent<SearchWordWorkerReturn>) => {
         setWordSearchPosition(ev.data);
-        setCurrentIndexWordMarked(0);
       };
     }, 300),
     [isCaseSensitive, jsonSelected],
