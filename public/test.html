@@ -1,0 +1,129 @@
+<html>
+  <head>
+    <style>
+      :root {
+          --border-color: rgb(0, 0, 0, 0.05);
+          --digit-max: 1;
+          --line-count-margin: 18px;
+          --line-height: 20px;
+      }
+
+      body {
+          padding: 0;
+          margin: 0;
+          box-sizing: border-box;
+      }
+
+      #root {
+          padding: 2px 8px;
+      }
+
+      #root > div:hover {
+          background: rgba(83, 169, 255, 0.1);
+      }
+
+      pre {
+          tab-size: 4;
+          margin: 0;
+      }
+
+      .line {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          align-items: center;
+          position: relative;
+          white-space: nowrap;
+          height: var(--line-height);
+          transition: height ease 0.2s;
+      }
+
+      .line > div {
+          user-select: none;
+      }
+
+      .line > .nested {
+          left: calc(8px + var(--line-count-margin) + (5px * var(--digit-max))) !important;
+      }
+
+      .line-count {
+          font-size: 0.6rem;
+          text-align: center;
+          margin-right: var(--line-count-margin);
+          align-self: stretch;
+          border-right: 2px solid #c6c6c6;
+          display: inline-flex;
+          align-items: center;
+      }
+
+      .line-count > p {
+          margin: 0;
+          padding: 0 2px;
+          text-align: right;
+          width: calc(5px * var(--digit-max));
+          display: inline-block;
+      }
+
+      .nested {
+          border-left: 2px solid var(--border-color);
+          position: absolute;
+          left: 12px;
+          height: 100%;
+      }
+
+      .text-key {
+          color: #ffc250;
+      }
+
+      .text-value-string {
+          color: #02bd02;
+      }
+
+      input[type='button'] {
+          width: 10px;
+          height: 10px;
+          line-height: 0.6;
+          font-size: 0.6rem;
+          text-align: center;
+          border: 1px solid #dcdcdc;
+          border-radius: 2px;
+          position: absolute;
+          top: 5px;
+          left: var(--line-count-margin);
+          cursor: pointer;
+          padding: 0;
+      }
+
+      .hidden {
+          height: 0;
+          overflow: hidden;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id='root'>
+      <div class='line'><div class='line-count'><p>1</p></div><input id='line-1' type='button' value='-' onclick='onClickCollapse(this)' /><div class=''></div><pre>{</pre></div>
+      <div class='line' data-line-1><div class='line-count'><p>2</p></div><div class='nested'></div><pre>&#9;<span class='text-key'>"name":</span> <span class='text-value-string'>"Ale",</span></pre></div>
+      <div class='line' data-line-1><div class='line-count'><p>3</p></div><input id='line-3' type='button' value='-' onclick='onClickCollapse(this)' /><div class='nested'></div><pre>&#9;"class": {</pre></div>
+      <div class='line' data-line-1 data-line-3><div class='line-count'><p>4</p></div><div class='nested'><div class='nested'></div></div><pre>&#9;&#9;"name": "shooter"</pre></div>
+      <div class='line' data-line-1><div class='line-count'><p>5</p></div><div class='nested'></div><pre>&#9;}</pre></div>
+      <div class='line'><div class='line-count'><p>6</p></div><div class=''></div><pre>}</pre></div>
+    </div>
+    <script>
+      function onClickCollapse(ev) {
+        const elList = document.querySelectorAll(`[data-${ev.id}]`)
+        const isCollapsed = ev.value === '+'
+        ev.value = isCollapsed ? '-' : '+'
+
+        elList.forEach((el) => {
+          if(isCollapsed) {
+            el.classList.remove('hidden');
+          } else {
+            el.classList.add('hidden');
+          }
+        })
+      }
+    </script>
+  </body>
+</html>

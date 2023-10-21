@@ -11,6 +11,7 @@ import {
 import { Box } from '@mui/material';
 import { VariableSizeList } from 'react-window';
 import { useJsonLinesStyles } from './styles.ts';
+import { useJsonFeatureProvider } from '../../../hooks/useJsonFeatureProvider.ts';
 
 export interface HandleCollapseParam {
   divParentIndex: number;
@@ -29,7 +30,9 @@ interface JsonLineProps {
 
 export const JsonLine = forwardRef<HTMLDivElement, JsonLineProps>(
   ({ lineNumber, lineData, totalLine, handleCollapse, style }, ref) => {
-    const classes = useJsonLinesStyles({ totalLine, tabSize: 2 });
+    const { tabSize, wordSearchPosition, wordSearch, isCaseSensitive, currentIndexWordMarked } =
+      useJsonFeatureProvider();
+    const classes = useJsonLinesStyles({ totalLine, tabSize });
 
     const isEnabledCollapse = false;
     const lineRef = useRef<HTMLDivElement>(null);
@@ -54,6 +57,7 @@ export const JsonLine = forwardRef<HTMLDivElement, JsonLineProps>(
       lineData = lineData.replace(/\t/g, '');
 
       const hasComma = lineData.endsWith(',');
+      const hasMarker = !!wordSearchPosition.positions[lineNumber - 1];
 
       const color: [string, string][] = [];
 
@@ -90,12 +94,31 @@ export const JsonLine = forwardRef<HTMLDivElement, JsonLineProps>(
         color.push(['color-bracket', ',']);
       }
 
+      let markerLineIndex = 0;
+      const markText = (text: string) => {
+        if (!hasMarker) return text;
+        const regex = new RegExp(`${wordSearch}`, isCaseSensitive ? 'g' : 'gi');
+        const markIndex = wordSearchPosition.positions[lineNumber - 1].findIndex((i) => currentIndexWordMarked === i);
+
+        text = text.replace(regex, (value) => {
+          let className = null;
+          if (markerLineIndex++ === markIndex) className = 'marked';
+          return `<mark class=${className}>${value}</mark>`;
+        });
+
+        return <span dangerouslySetInnerHTML={{ __html: text }} />;
+      };
+
       return (
         <>
           {'\t'.repeat(tabCount)}
-          {color.map(([className, text]) => {
+          {color.map(([className, text], i) => {
             if (text.includes(':')) text += ' ';
-            return <span className={className}>{text}</span>;
+            return (
+              <span key={String(i)} className={className}>
+                {markText(text)}
+              </span>
+            );
           })}
         </>
       );

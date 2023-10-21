@@ -6,6 +6,7 @@ import { HandleCollapseParam, JsonLine } from './JsonLine/JsonLine.tsx';
 import { memo, useEffect, useRef } from 'react';
 import { JsonNotSelected } from './JsonNotSelected.tsx';
 import { JsonHeader } from './JsonHeader';
+import { JsonFeatureProvider } from '../../providers/JsonFeatureProvider.tsx';
 
 export const JsonTreeViewer = () => {
   const { jsonSelected } = useJsonProvider();
@@ -34,13 +35,10 @@ export const JsonTreeViewer = () => {
   };
 
   const Row = memo(({ index, style, data }: ListChildComponentProps<string[]>) => {
-    const rowRef = useRef<HTMLDivElement>(null);
-
     const lineData = data[index];
 
     return (
       <JsonLine
-        ref={rowRef}
         style={style}
         lineNumber={index + 1}
         lineData={lineData}
@@ -60,33 +58,35 @@ export const JsonTreeViewer = () => {
   if (!jsonSelected) return <JsonNotSelected />;
 
   return (
-    <Box
-      component={Paper}
-      variant={'outlined'}
-      height={'100%'}
-      overflow={'auto'}
-      display={'flex'}
-      flexDirection={'column'}
-      flexWrap={'nowrap'}
-    >
-      <JsonHeader jsonSelected={jsonSelected} />
-      <Divider />
-      <Box flex={1} width={'100%'}>
-        <AutoSizer>
-          {({ height, width }) => (
-            <List
-              height={height}
-              itemData={jsonSelected?.content}
-              itemCount={jsonSelected?.content.length}
-              itemSize={getRowHeight}
-              width={width}
-              ref={listRef}
-            >
-              {Row}
-            </List>
-          )}
-        </AutoSizer>
+    <JsonFeatureProvider jsonSelected={jsonSelected} listRef={listRef}>
+      <Box
+        component={Paper}
+        variant={'outlined'}
+        height={'100%'}
+        overflow={'auto'}
+        display={'flex'}
+        flexDirection={'column'}
+        flexWrap={'nowrap'}
+      >
+        <JsonHeader jsonSelected={jsonSelected} />
+        <Divider />
+        <Box flex={1} width={'100%'}>
+          <AutoSizer>
+            {({ height, width }) => (
+              <List
+                height={height}
+                itemData={jsonSelected?.content}
+                itemCount={jsonSelected?.content.length}
+                itemSize={getRowHeight}
+                width={width}
+                ref={listRef}
+              >
+                {Row}
+              </List>
+            )}
+          </AutoSizer>
+        </Box>
       </Box>
-    </Box>
+    </JsonFeatureProvider>
   );
 };

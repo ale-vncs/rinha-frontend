@@ -1,5 +1,7 @@
-import { Box, Grid, LinearProgress, Typography } from '@mui/material';
+import { Box, Divider, Grid, LinearProgress, Typography } from '@mui/material';
 import { FileData } from '../../../providers/JsonProvider.tsx';
+import { SearchInput } from './SearchInput.tsx';
+import { TabSizeSelect } from './TabSizeSelect.tsx';
 
 interface JsonHeaderProps {
   jsonSelected: FileData;
@@ -7,13 +9,29 @@ interface JsonHeaderProps {
 
 export const JsonHeader = ({ jsonSelected }: JsonHeaderProps) => {
   return (
-    <Grid container direction={'row'} gap={1} position={'relative'} p={1}>
+    <Grid container direction={'row'} gap={1} alignItems={'center'} position={'relative'} p={0.5}>
+      <Grid item>
+        <Typography>{jsonSelected.name}</Typography>
+      </Grid>
+      <Separator />
       <Grid item xs>
-        <Typography>{jsonSelected?.name}</Typography>
+        <SearchInput key={jsonSelected.id} />
+      </Grid>
+      <Separator />
+      <Grid item>
+        <TabSizeSelect />
       </Grid>
       <Box position={'absolute'} bottom={0} left={0} width={'100%'}>
         {jsonSelected.status === 'LOADING' && <LinearProgress />}
       </Box>
+    </Grid>
+  );
+};
+
+const Separator = () => {
+  return (
+    <Grid item height={'100%'} display={'flex'}>
+      <Divider orientation={'vertical'} flexItem variant={'fullWidth'} />
     </Grid>
   );
 };

@@ -16,6 +16,7 @@
     "@mui/icons-material": "^5.14.14",
     "@mui/material": "^5.14.14",
     "lodash.chunk": "^4.2.0",
+    "lodash.debounce": "^4.0.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-virtualized-auto-sizer": "^1.0.20",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/lodash.chunk": "^4.2.8",
+    "@types/lodash.debounce": "^4.0.8",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/react-window": "^1.8.7",
