@@ -19,6 +19,7 @@ const setContentByJsonId = (id: string, content: string[], isError = false) => {
 
 self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
   const { jsonId, file } = e.data;
+  console.time(`${jsonId} : ${file.name} validate`);
 
   const parseJson = () => {
     let jsonBuffer = '';
@@ -28,10 +29,8 @@ self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
         jsonBuffer += chunk;
       },
       flush(controller) {
-        console.time(`${jsonId} : ${file.name} validate`);
         jsonBuffer = JSON.stringify(JSON.parse(jsonBuffer), null, '\t');
         const jsonLines = jsonBuffer.split('\n');
-        console.timeEnd(`${jsonId} : ${file.name} validate`);
         controller.enqueue(jsonLines);
       },
     });
@@ -44,6 +43,7 @@ self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
     .pipeTo(
       new WritableStream({
         write(chunk) {
+          console.timeEnd(`${jsonId} : ${file.name} validate`);
           setContentByJsonId(jsonId, chunk);
         },
       }),
