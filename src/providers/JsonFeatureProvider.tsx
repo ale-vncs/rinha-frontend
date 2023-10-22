@@ -19,7 +19,7 @@ interface JsonFeatureProviderContextProps {
 
 interface JsonFeatureProviderProps {
   jsonSelected: FileData;
-  listRef: RefObject<List<string[]>>;
+  listRef: RefObject<List<FileData>>;
 }
 
 export const JsonFeatureProviderContext = createContext<JsonFeatureProviderContextProps>({} as never);

@@ -69,6 +69,7 @@ export const JsonList = () => {
                     borderRadius={'50%'}
                     bgcolor={red[500]}
                     color={'white'}
+                    lineHeight={2}
                   >
                     !
                   </Box>

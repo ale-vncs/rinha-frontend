@@ -1,20 +1,62 @@
-import chunk from 'lodash.chunk';
-
 export interface ReadFileWorkerReturn {
   id: string;
-  content: string[];
+  collapseData: Record<number, number>;
   isError: boolean;
-  part: number;
-  total: number;
+  fileFormatted: Blob[];
 }
 
 const setContentByJsonId = (id: string, content: string[], isError = false) => {
-  const dataChunk = chunk(content, 25000);
-  const data: ReadFileWorkerReturn = { id, content, isError, part: 1, total: dataChunk.length };
-
-  dataChunk.forEach((chk, index) => {
-    self.postMessage({ ...data, content: chk, part: index + 1 });
+  const collapseData = buildCollapseData(content);
+  const jsonFile = new File([content.join('\n')], 'foo.json', {
+    type: 'application/json',
   });
+
+  const jsonBlob: Blob[] = [];
+  const chunkSizeMb = 50 * 1024;
+
+  for (let i = 0; i < jsonFile.size; i += chunkSizeMb) {
+    jsonBlob.push(jsonFile.slice(i, i + chunkSizeMb));
+  }
+
+  const data: ReadFileWorkerReturn = {
+    id,
+    isError,
+    collapseData,
+    fileFormatted: jsonBlob,
+  };
+
+  self.postMessage(data);
+};
+
+const buildCollapseData = (jsonLines: string[]) => {
+  const collapseData: Record<number, number> = {};
+  const bracketIndexControl: number[] = [];
+
+  jsonLines.forEach((line, index) => {
+    const isOpenBracket = (() => {
+      const reg = /[{[]$/g;
+      return reg.test(line);
+    })();
+
+    const isCloseBracket = (() => {
+      const reg = /^\s*[}\]]/g;
+      return reg.test(line);
+    })();
+
+    if (isOpenBracket) {
+      collapseData[index] = -1;
+      bracketIndexControl.push(index);
+    } else if (isCloseBracket) {
+      bracketIndexControl.pop();
+    }
+    bracketIndexControl.forEach((brackIndex) => {
+      if (brackIndex !== index) {
+        collapseData[brackIndex] = index;
+      }
+    });
+  });
+
+  return collapseData;
 };
 
 self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
@@ -43,8 +85,8 @@ self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
     .pipeTo(
       new WritableStream({
         write(chunk) {
-          console.timeEnd(`${jsonId} : ${file.name} validate`);
           setContentByJsonId(jsonId, chunk);
+          console.timeEnd(`${jsonId} : ${file.name} validate`);
         },
       }),
     )

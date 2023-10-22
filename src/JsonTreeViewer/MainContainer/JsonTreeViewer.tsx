@@ -7,11 +7,13 @@ import { memo, useEffect, useRef } from 'react';
 import { JsonNotSelected } from './JsonNotSelected.tsx';
 import { JsonHeader } from './JsonHeader';
 import { JsonFeatureProvider } from '../../providers/JsonFeatureProvider.tsx';
+import { FileData } from '../../providers/JsonProvider.tsx';
 
 export const JsonTreeViewer = () => {
   const { jsonSelected } = useJsonProvider();
 
-  const listRef = useRef<List<string[]>>(null);
+  const currentJsonId = useRef('');
+  const listRef = useRef<List<FileData>>(null);
   const rowHeights = useRef<Record<number, number>>({});
 
   function getRowHeight(index: number) {
@@ -19,7 +21,6 @@ export const JsonTreeViewer = () => {
   }
 
   function setRowHeight(index: number, size: number) {
-    //listRef.current?.resetAfterIndex(0);
     rowHeights.current = { ...rowHeights.current, [index]: size };
   }
 
@@ -27,23 +28,31 @@ export const JsonTreeViewer = () => {
     listRef.current?.scrollToItem(0, 'start');
   }
 
-  const handleCollapse = ({ divIndexList, divParentIndex, isCollapse }: HandleCollapseParam) => {
-    divIndexList.forEach((i) => {
+  const handleCollapse = ({ divParentIndex, isCollapse }: HandleCollapseParam) => {
+    const collapseData = jsonSelected?.collapseData ?? {};
+    const lastIndex = collapseData[divParentIndex];
+    for (let i = divParentIndex + 1; i <= lastIndex; i++) {
       setRowHeight(i, isCollapse ? 0 : 20);
-    });
+    }
+
     listRef.current?.resetAfterIndex(divParentIndex);
   };
 
-  const Row = memo(({ index, style, data }: ListChildComponentProps<string[]>) => {
-    const lineData = data[index];
+  const Row = memo(({ index, style, data }: ListChildComponentProps<FileData>) => {
+    const lineData = data.content[index];
+
+    const isCollapse = !getRowHeight(index + 1) && !!getRowHeight(index);
+
+    const disableCollapse = (data.collapseData[index] ?? 0) - index > 5000;
 
     return (
       <JsonLine
         style={style}
+        disableCollapse={disableCollapse}
+        isCollapse={isCollapse}
         lineNumber={index + 1}
         lineData={lineData}
-        totalLine={data.length}
-        listRef={listRef}
+        totalLine={data.content.length}
         handleCollapse={handleCollapse}
       />
     );
@@ -52,8 +61,13 @@ export const JsonTreeViewer = () => {
   useEffect(() => {
     if (!jsonSelected) return;
     scrollTop();
-    rowHeights.current = {};
+    listRef.current?.resetAfterIndex(0);
   }, [jsonSelected]);
+
+  if (currentJsonId.current !== jsonSelected?.id) {
+    rowHeights.current = {};
+    currentJsonId.current = jsonSelected?.id ?? '';
+  }
 
   if (!jsonSelected) return <JsonNotSelected />;
 
@@ -75,7 +89,7 @@ export const JsonTreeViewer = () => {
             {({ height, width }) => (
               <List
                 height={height}
-                itemData={jsonSelected?.content}
+                itemData={jsonSelected}
                 itemCount={jsonSelected?.content.length}
                 itemSize={getRowHeight}
                 width={width}
