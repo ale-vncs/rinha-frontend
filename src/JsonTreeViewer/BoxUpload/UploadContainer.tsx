@@ -1,7 +1,7 @@
 import { ChangeEvent, DragEvent, useState } from 'react';
-import { useJsonProvider } from '../../hooks/useJsonProvider.ts';
+import { useJsonProvider } from '@hooks/useJsonProvider';
 import { Box, Typography } from '@mui/material';
-import { useUploadContainerStyle } from './useUploadContainerStyle.ts';
+import { useUploadContainerStyle } from './useUploadContainerStyle';
 
 export const UploadContainer = () => {
   const { readFile } = useJsonProvider();

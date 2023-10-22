@@ -1,4 +1,4 @@
 import { useContext } from 'react';
-import { Context } from '../providers/JsonProvider.tsx';
+import { Context } from '@providers/JsonProvider';
 
 export const useJsonProvider = () => useContext(Context);

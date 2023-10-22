@@ -1,5 +1,5 @@
 import { InputAdornment, MenuItem, TextField } from '@mui/material';
-import { useJsonFeatureProvider } from '../../../hooks/useJsonFeatureProvider.ts';
+import { useJsonFeatureProvider } from '@hooks/useJsonFeatureProvider';
 import { ChangeEvent } from 'react';
 
 export const TabSizeSelect = () => {

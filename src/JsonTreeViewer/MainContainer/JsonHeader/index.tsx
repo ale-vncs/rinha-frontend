@@ -1,7 +1,7 @@
 import { Box, Divider, Grid, LinearProgress, Typography } from '@mui/material';
-import { FileData } from '../../../providers/JsonProvider.tsx';
-import { SearchInput } from './SearchInput.tsx';
-import { TabSizeSelect } from './TabSizeSelect.tsx';
+import { FileData } from '@providers/JsonProvider';
+import { SearchInput } from './SearchInput';
+import { TabSizeSelect } from './TabSizeSelect';
 
 interface JsonHeaderProps {
   jsonSelected: FileData;

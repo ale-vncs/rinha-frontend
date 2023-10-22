@@ -1,6 +1,5 @@
 export interface SearchWordWorkerReturn {
   total: number;
-  //status: 'LOADING' | 'COMPLETE';
   positions: Record<number, number[]>;
 }
 

@@ -1,4 +1,4 @@
-import { makeSx } from '../../../utils/makeSx.ts';
+import { makeSx } from '@utils/makeSx';
 import { grey } from '@mui/material/colors';
 
 export interface StyleProps {

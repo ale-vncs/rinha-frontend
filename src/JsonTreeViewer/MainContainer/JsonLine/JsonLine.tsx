@@ -1,7 +1,7 @@
 import { CSSProperties, Fragment, MouseEvent, useState } from 'react';
 import { Box, Tooltip } from '@mui/material';
-import { useJsonLinesStyles } from './styles.ts';
-import { useJsonFeatureProvider } from '../../../hooks/useJsonFeatureProvider.ts';
+import { useJsonLinesStyles } from './styles';
+import { useJsonFeatureProvider } from '@hooks/useJsonFeatureProvider';
 
 export interface HandleCollapseParam {
   divParentIndex: number;

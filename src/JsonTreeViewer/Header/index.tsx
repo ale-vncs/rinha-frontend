@@ -1,5 +1,5 @@
-import { useJsonProvider } from '../../hooks/useJsonProvider.ts';
-import { UploadContainer } from '../BoxUpload/UploadContainer.tsx';
+import { useJsonProvider } from '@hooks/useJsonProvider';
+import { UploadContainer } from '../BoxUpload/UploadContainer';
 import { Box, Stack, Typography } from '@mui/material';
 
 export const Header = () => {

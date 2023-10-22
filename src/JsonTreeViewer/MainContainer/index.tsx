@@ -1,7 +1,7 @@
 import { Grid } from '@mui/material';
 import { JsonList } from './JsonList';
-import { JsonTreeViewer } from './JsonTreeViewer.tsx';
-import { useJsonProvider } from '../../hooks/useJsonProvider.ts';
+import { JsonTreeViewer } from './JsonTreeViewer';
+import { useJsonProvider } from '@hooks/useJsonProvider';
 
 export const MainContainer = () => {
   const { files } = useJsonProvider();

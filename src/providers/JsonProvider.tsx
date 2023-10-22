@@ -1,5 +1,5 @@
 import { createContext, PropsWithChildren, useState } from 'react';
-import { ReadFileWorkerReturn } from '../workers/readFileWorker.ts';
+import { ReadFileWorkerReturn } from '@workers/readFileWorker';
 import { Backdrop, CircularProgress } from '@mui/material';
 
 export interface FileData {

@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { FormatSize, KeyboardArrowDown, KeyboardArrowUp, SearchRounded } from '@mui/icons-material';
-import { useJsonFeatureProvider } from '../../../hooks/useJsonFeatureProvider.ts';
+import { useJsonFeatureProvider } from '@hooks/useJsonFeatureProvider';
 import { useEffect, useState } from 'react';
 
 export const SearchInput = () => {

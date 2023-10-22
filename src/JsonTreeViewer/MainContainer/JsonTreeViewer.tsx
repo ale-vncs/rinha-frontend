@@ -1,13 +1,13 @@
-import { useJsonProvider } from '../../hooks/useJsonProvider.ts';
+import { useJsonProvider } from '@hooks/useJsonProvider';
 import { areEqual, ListChildComponentProps, VariableSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { Box, Divider, Paper } from '@mui/material';
-import { HandleCollapseParam, JsonLine } from './JsonLine/JsonLine.tsx';
+import { HandleCollapseParam, JsonLine } from './JsonLine/JsonLine';
 import { memo, useEffect, useRef } from 'react';
-import { JsonNotSelected } from './JsonNotSelected.tsx';
+import { JsonNotSelected } from './JsonNotSelected';
 import { JsonHeader } from './JsonHeader';
-import { JsonFeatureProvider } from '../../providers/JsonFeatureProvider.tsx';
-import { FileData } from '../../providers/JsonProvider.tsx';
+import { JsonFeatureProvider } from '@providers/JsonFeatureProvider';
+import { FileData } from '@providers/JsonProvider';
 
 export const JsonTreeViewer = () => {
   const { jsonSelected } = useJsonProvider();

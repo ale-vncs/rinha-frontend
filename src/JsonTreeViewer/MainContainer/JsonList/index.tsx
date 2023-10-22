@@ -1,8 +1,8 @@
-import { useJsonProvider } from '../../../hooks/useJsonProvider.ts';
+import { useJsonProvider } from '@hooks/useJsonProvider';
 import { Box, ButtonBase, CircularProgress, Paper, Stack, Typography, useTheme } from '@mui/material';
-import { FileData } from '../../../providers/JsonProvider.tsx';
+import { FileData } from '@providers/JsonProvider';
 import { green, grey, red } from '@mui/material/colors';
-import { UploadContainer } from '../../BoxUpload/UploadContainer.tsx';
+import { UploadContainer } from '@src/JsonTreeViewer/BoxUpload/UploadContainer';
 
 export const JsonList = () => {
   const { palette } = useTheme();

@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, RefObject, useCallback, useEffect, useRef, useState } from 'react';
-import { FileData } from './JsonProvider.tsx';
-import { SearchWordWorkerInput, SearchWordWorkerReturn } from '../workers/searchWordWorker.ts';
+import { FileData } from './JsonProvider';
+import { SearchWordWorkerInput, SearchWordWorkerReturn } from '@workers/searchWordWorker';
 import { VariableSizeList as List } from 'react-window';
 import debounce from 'lodash.debounce';
 
