@@ -3,6 +3,13 @@ import { Box, Tooltip } from '@mui/material';
 import { useJsonLinesStyles } from './styles';
 import { useJsonFeatureProvider } from '@hooks/useJsonFeatureProvider';
 
+interface ColorLine {
+  key: string;
+  value: string;
+  type: 'string' | 'number' | 'bracket' | 'boolean' | 'link';
+  hasComma: boolean;
+}
+
 export interface HandleCollapseParam {
   divParentIndex: number;
   isCollapse: boolean;
@@ -37,50 +44,57 @@ export const JsonLine = ({
   const tabCount = lineData.match(/\t/g)?.length ?? 0;
 
   const colorLine = () => {
-    const keyBracket = /(".+":) ({|\[)/; // "name": {
+    const keyBracket = /"(.+)": ({|\[)/; // "name": {
     const brackets = /^\s*({|}|]|\[),?/; // \t [
-    const numberValue = /^\s*(".+":)\s([0-9.]+)(?=,?)/; // "age": 4
-    const stringValue = /^\s*(".+":)\s(.+)(?=,?)/; // "name": "Ale"
-    const booleanValue = /^\s*(".+":)\s(true|false|null|undefined)(?=,?)/; // "isOk": true
+    const numberValue = /^\s*"(.+)":\s([0-9.]+)(?=,?)/; // "age": 4
+    const stringValue = /^\s*"(.+)":\s"(.+)"(?=,?)/; // "name": "Ale"
+    const linkValue =
+      /^\s*"(.+)":\s"([(http(s)?)://(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*))"(?=,?)/; // "name": "Ale"
+    const booleanValue = /^\s*"(.+)":\s(true|false|null|undefined)(?=,?)/; // "isOk": true
 
     lineData = lineData.replace(/\t/g, '');
 
     const hasComma = lineData.endsWith(',');
     const hasMarker = !!wordSearchPosition.positions[lineNumber - 1];
 
-    const color: [string, string][] = [];
+    const colorLine: ColorLine = {} as never;
 
     if (hasComma) {
       lineData = lineData.substring(0, lineData.length - 1);
     }
 
+    const setLineColor = (value: string, type: ColorLine['type'], key?: string) => {
+      colorLine.type = type;
+      colorLine.value = value;
+      colorLine.key = key ?? '';
+      colorLine.hasComma = hasComma;
+    };
+
     if (brackets.test(lineData)) {
-      color.push(['color-bracket', lineData]);
+      setLineColor(lineData, 'bracket');
     } else if (keyBracket.test(lineData)) {
       const [, key, bracket] = keyBracket.exec(lineData) as RegExpExecArray;
-      color.push(['color-key', key]);
-      color.push(['color-bracket', bracket]);
+      setLineColor(bracket, 'bracket', key);
     } else if (numberValue.test(lineData)) {
       const [, key, number] = numberValue.exec(lineData) as RegExpExecArray;
-      color.push(['color-key', key]);
-      color.push(['color-number', number]);
+      setLineColor(number, 'number', key);
     } else if (booleanValue.test(lineData)) {
       const [, key, boolean] = booleanValue.exec(lineData) as RegExpExecArray;
-      color.push(['color-key', key]);
-      color.push(['color-boolean', boolean]);
+      setLineColor(boolean, 'boolean', key);
+    } else if (linkValue.test(lineData)) {
+      const [, key, string] = linkValue.exec(lineData) as RegExpExecArray;
+      setLineColor(string, 'link', key);
     } else if (stringValue.test(lineData)) {
       const [, key, string] = stringValue.exec(lineData) as RegExpExecArray;
-      color.push(['color-key', key]);
-      color.push(['color-string', string]);
+      setLineColor(string, 'string', key);
     } else {
-      let c = 'color-boolean';
-      if (/".*"/.test(lineData)) c = 'color-string';
-      if (/[0-9]+/.test(lineData)) c = 'color-number';
-      color.push([c, lineData]);
-    }
-
-    if (hasComma) {
-      color.push(['color-bracket', ',']);
+      let c: ColorLine['type'] = 'boolean';
+      if (/".*"/.test(lineData)) {
+        c = 'string';
+        lineData = lineData.replace(/"/g, '');
+      }
+      if (/[0-9]+/.test(lineData)) c = 'number';
+      setLineColor(lineData, c);
     }
 
     let markerLineIndex = 0;
@@ -90,25 +104,33 @@ export const JsonLine = ({
       const markIndex = wordSearchPosition.positions[lineNumber - 1].findIndex((i) => currentIndexWordMarked === i);
 
       text = text.replace(regex, (value) => {
-        let className = null;
+        let className = '';
         if (markerLineIndex++ === markIndex) className = 'marked';
         return `<mark class=${className}>${value}</mark>`;
       });
 
-      return <span dangerouslySetInnerHTML={{ __html: text }} />;
+      return text;
     };
+
+    const classNameByType = () => {
+      return `color-${colorLine.type}`;
+    };
+
+    const valueByType = () => {
+      const { type, value } = colorLine;
+      if (type === 'string') return markText(`"${value}"`);
+      if (type === 'link') return `"<a target='_blank' href='${value}'>${markText(value)}</a>"`;
+      return markText(value);
+    };
+
+    const { key } = colorLine;
 
     return (
       <>
         {'\t'.repeat(tabCount)}
-        {color.map(([className, text], i) => {
-          if (text.includes(':')) text += ' ';
-          return (
-            <span key={String(i)} className={className}>
-              {markText(text)}
-            </span>
-          );
-        })}
+        {!!key && <span className={'color-key'} dangerouslySetInnerHTML={{ __html: markText(`"${key}": `) }} />}
+        <span className={classNameByType()} dangerouslySetInnerHTML={{ __html: valueByType() }} />
+        {hasComma && <span className={'color-bracket'} dangerouslySetInnerHTML={{ __html: markText(',') }} />}
       </>
     );
   };

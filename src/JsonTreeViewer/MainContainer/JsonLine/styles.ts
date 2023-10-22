@@ -100,6 +100,9 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
       '& > .color-string': {
         color: '#8dbd6d',
       },
+      '& > .color-link': {
+        color: '#5c7fde',
+      },
       '& > .color-number': {
         color: '#e468cc',
       },
