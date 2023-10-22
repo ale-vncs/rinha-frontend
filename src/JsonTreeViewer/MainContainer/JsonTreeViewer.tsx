@@ -94,6 +94,7 @@ export const JsonTreeViewer = () => {
                 itemSize={getRowHeight}
                 width={width}
                 ref={listRef}
+                overscanCount={65}
               >
                 {Row}
               </List>
