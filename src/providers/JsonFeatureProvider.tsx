@@ -15,6 +15,7 @@ interface JsonFeatureProviderContextProps {
   wordSearch: string;
   isCaseSensitive: boolean;
   currentIndexWordMarked: number;
+  isSearching: boolean;
 }
 
 interface JsonFeatureProviderProps {
@@ -34,6 +35,7 @@ export const JsonFeatureProvider = ({
     total: 0,
     positions: [],
   });
+  const [isSearching, setIsSearching] = useState(false);
   const [wordSearch, setWordSearch] = useState('');
   const [isCaseSensitive, setIsCaseSensitive] = useState(false);
   const [currentIndexWordMarked, setCurrentIndexWordMarked] = useState(-1);
@@ -56,8 +58,10 @@ export const JsonFeatureProvider = ({
           total: 0,
           positions: [],
         });
+        setIsSearching(false);
         return;
       }
+      setIsSearching(true);
 
       const message: SearchWordWorkerInput = {
         value,
@@ -69,7 +73,8 @@ export const JsonFeatureProvider = ({
       worker.postMessage(message);
 
       worker.onmessage = (ev: MessageEvent<SearchWordWorkerReturn>) => {
-        setWordSearchPosition(ev.data);
+        setWordSearchPosition(() => ev.data);
+        setIsSearching(false);
       };
     }, 300),
     [isCaseSensitive, jsonSelected],
@@ -77,22 +82,46 @@ export const JsonFeatureProvider = ({
 
   const nextWord = () => {
     setCurrentIndexWordMarked((prev) => {
+      let lineToScroll = 0;
       prev += 1;
+      const positions = Object.keys(wordSearchPosition.positions);
+
       if (prev >= wordSearchPosition.total) {
-        prev = 0;
+        prev = wordSearchPosition.positions[Number(positions[0])][0];
       }
-      listRef.current?.scrollToItem(prev);
+
+      for (const key in wordSearchPosition.positions) {
+        if (wordSearchPosition.positions[key].includes(prev)) {
+          lineToScroll = Number(key);
+          break;
+        }
+      }
+
+      listRef.current?.scrollToItem(lineToScroll);
+
       return prev;
     });
   };
 
   const previousWord = () => {
     setCurrentIndexWordMarked((prev) => {
+      let lineToScroll = 0;
+      const keysPosition = Object.keys(wordSearchPosition.positions);
       prev -= 1;
+
       if (prev < 0) {
-        prev = wordSearchPosition.total - 1;
+        prev = wordSearchPosition.positions[Number(keysPosition.at(-1))].at(-1) as number;
       }
-      listRef.current?.scrollToItem(prev);
+
+      for (const key in wordSearchPosition.positions) {
+        if (wordSearchPosition.positions[key].includes(prev)) {
+          lineToScroll = Number(key);
+          break;
+        }
+      }
+
+      listRef.current?.scrollToItem(lineToScroll);
+
       return prev;
     });
   };
@@ -130,6 +159,7 @@ export const JsonFeatureProvider = ({
         nextWordFound: nextWord,
         previousWordFound: previousWord,
         currentIndexWordMarked,
+        isSearching,
       }}
     >
       {children}

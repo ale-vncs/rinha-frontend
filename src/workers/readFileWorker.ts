@@ -65,7 +65,6 @@ self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
           sendPart(jsonId, data);
         },
         close() {
-          //console.log({ collapseData });
           console.timeEnd(`${jsonId} : ${file.name} validate`);
           sendComplete(jsonId, collapseData);
         },

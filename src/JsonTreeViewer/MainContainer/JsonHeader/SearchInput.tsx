@@ -1,6 +1,7 @@
 import {
   Button,
   ButtonGroup,
+  CircularProgress,
   InputAdornment,
   Stack,
   TextField,
@@ -21,6 +22,7 @@ export const SearchInput = () => {
     isCaseSensitive,
     nextWordFound,
     previousWordFound,
+    isSearching,
   } = useJsonFeatureProvider();
 
   const [searchValue, setSearchValue] = useState('');
@@ -46,9 +48,10 @@ export const SearchInput = () => {
           ),
           endAdornment: (
             <InputAdornment position="end">
-              {!!wordSearch && (
+              {!!wordSearch && !isSearching && (
                 <Typography variant={'body2'}>{wordSearchPosition.total} occurrence(s) found</Typography>
               )}
+              {isSearching && <CircularProgress size={16} />}
               <Tooltip title={'Match Case'}>
                 <ToggleButton
                   value="check"

@@ -10,7 +10,7 @@ export interface SearchWordWorkerInput {
   jsonLines: string[];
 }
 
-const getIndicesOf = (searchStr: string, str: string, caseSensitive = false) => {
+const getIndicesOf = (searchStr: string, str: string, caseSensitive = false, total: number) => {
   const searchStrLen = searchStr.length;
   if (searchStrLen == 0) {
     return [];
@@ -26,17 +26,17 @@ const getIndicesOf = (searchStr: string, str: string, caseSensitive = false) => 
   }
 
   while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-    indices.push(index);
+    indices.push(total++);
     startIndex = index + searchStrLen;
   }
 
   return indices;
 };
 
-const sendMessage = (positions: Record<number, number[]>) => {
+const sendMessage = (positions: Record<number, number[]>, total: number) => {
   const returnData: SearchWordWorkerReturn = {
     positions: positions,
-    total: Object.values(positions).flat().length,
+    total,
   };
 
   self.postMessage(returnData);
@@ -46,12 +46,13 @@ self.onmessage = async (e: MessageEvent<SearchWordWorkerInput>) => {
   const { value, jsonLines, isCaseSensitive } = e.data;
 
   const wordPositions: Record<number, number[]> = {};
+  let total = 0;
 
-  jsonLines.forEach((line, index) => {
-    const indices = getIndicesOf(value, line, isCaseSensitive);
-    const total = Object.values(wordPositions).flat().length;
-    if (indices.length) wordPositions[index] = indices.map((_, i) => total + i++);
-    if (index % 280 === 0) sendMessage(wordPositions);
-  });
-  sendMessage(wordPositions);
+  for (let index = 0; index < jsonLines.length; index++) {
+    const line = jsonLines[index];
+    const indices = getIndicesOf(value, line, isCaseSensitive, total);
+    total += indices.length;
+    if (indices.length) wordPositions[index] = indices;
+  }
+  sendMessage(wordPositions, total);
 };

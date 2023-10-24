@@ -47,7 +47,7 @@ export const JsonTreeViewer = () => {
 
     return (
       <JsonLine
-        style={style}
+        style={{ ...style, display: !getRowHeight(index) ? 'none' : undefined }}
         disableCollapse={disableCollapse}
         isCollapse={isCollapse}
         lineNumber={index + 1}
@@ -94,7 +94,7 @@ export const JsonTreeViewer = () => {
                 itemSize={getRowHeight}
                 width={width}
                 ref={listRef}
-                overscanCount={65}
+                overscanCount={15}
               >
                 {Row}
               </List>
