@@ -7,6 +7,7 @@ interface ReadFileWorkerError {
 interface ReadFileWorkerComplete {
   id: string;
   action: 'COMPLETE';
+  collapseData: Record<number, number>;
 }
 
 interface ReadFileWorkerPart {
@@ -27,10 +28,11 @@ const sendError = (id: string, err: string) => {
   self.postMessage(data);
 };
 
-const sendComplete = (id: string) => {
+const sendComplete = (id: string, collapseData: ReadFileWorkerComplete['collapseData']) => {
   const data: ReadFileWorkerReturn = {
     id,
     action: 'COMPLETE',
+    collapseData,
   };
 
   self.postMessage(data);
@@ -63,9 +65,9 @@ self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
           sendPart(jsonId, data);
         },
         close() {
-          console.log({ collapseData });
+          //console.log({ collapseData });
           console.timeEnd(`${jsonId} : ${file.name} validate`);
-          sendComplete(jsonId);
+          sendComplete(jsonId, collapseData);
         },
       }),
     )
@@ -149,12 +151,12 @@ const parseJson = () => {
 };
 
 const buildCollapseData = (collapseData: Record<number, number>) => {
-  const bracketIndexControl: number[] = [];
+  let lineIndex = 0;
+  const lastIndex: number[] = [];
 
   return new TransformStream<string[], string[]>({
     transform(chunk, controller) {
-      for (let index = 0; index < chunk.length; index++) {
-        const line = chunk[index];
+      for (const line of chunk) {
         const isOpenBracket = (() => {
           const reg = /[{[]$/g;
           return reg.test(line);
@@ -166,16 +168,14 @@ const buildCollapseData = (collapseData: Record<number, number>) => {
         })();
 
         if (isOpenBracket) {
-          collapseData[index] = -1;
-          bracketIndexControl.push(index);
+          collapseData[lineIndex] = -1;
+          lastIndex[lastIndex.length] = lineIndex;
         } else if (isCloseBracket) {
-          bracketIndexControl.pop();
+          collapseData[lastIndex[lastIndex.length - 1]] = lineIndex - 1;
+          lastIndex.pop();
         }
-        for (const brackIndex of bracketIndexControl) {
-          if (brackIndex !== index) {
-            collapseData[brackIndex] = index;
-          }
-        }
+
+        lineIndex++;
       }
       controller.enqueue(chunk);
     },

@@ -1,6 +1,5 @@
-import { createContext, PropsWithChildren, useRef, useState } from 'react';
+import { createContext, PropsWithChildren, useState } from 'react';
 import { ReadFileWorkerReturn } from '@workers/readFileWorker';
-import { Backdrop, CircularProgress } from '@mui/material';
 
 export interface FileData {
   id: string;
@@ -22,7 +21,6 @@ export const Context = createContext<JsonProviderContext>({} as never);
 export const JsonProvider = ({ children }: PropsWithChildren) => {
   const [fileData, setFileData] = useState<FileData[]>([]);
   const [jsonSelected, setJsonSelected] = useState<FileData | null>(null);
-  const [waitJson, setWaitJson] = useState(false);
 
   const addJson = (name: string) => {
     const id = (Math.random() + 1).toString(36).substring(2);
@@ -61,7 +59,7 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
       const action = e.data.action;
       const id = e.data.id;
       if (action === 'LOADING') {
-        const part = e.data.part;
+        const { part } = e.data;
         const l = arr.length;
         let i = 0;
         while (i < part.length) {
@@ -69,11 +67,13 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
           i++;
         }
       } else if (action === 'COMPLETE') {
+        const { collapseData } = e.data;
         setFileData((data) => {
           return data.map((item) => {
             if (item.id === id) {
               item.status = 'AVAILABLE';
               item.content = arr;
+              item.collapseData = collapseData;
             }
             return item;
           });
@@ -96,14 +96,6 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
   };
 
   return (
-    <Context.Provider value={{ readFile, files: fileData, jsonSelected, selectJsonById }}>
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1, width: '100vw', height: '100vh' }}
-        open={waitJson}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      {children}
-    </Context.Provider>
+    <Context.Provider value={{ readFile, files: fileData, jsonSelected, selectJsonById }}>{children}</Context.Provider>
   );
 };
