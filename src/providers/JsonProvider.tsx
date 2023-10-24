@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useState } from 'react';
+import { createContext, PropsWithChildren, useRef, useState } from 'react';
 import { ReadFileWorkerReturn } from '@workers/readFileWorker';
 import { Backdrop, CircularProgress } from '@mui/material';
 
@@ -56,23 +56,31 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
     const jsonId = addJson(file.name);
 
     readFileWorker.postMessage({ jsonId, file });
-
+    const arr: string[] = [];
     readFileWorker.onmessage = (e: MessageEvent<ReadFileWorkerReturn>) => {
-      const { isError, id, fileFormatted, collapseData } = e.data;
-
-      setWaitJson(true);
-      Promise.all(fileFormatted.map((b) => b.text()))
-        .then((data) => {
-          return data.join('');
-        })
-        .then((json) => {
-          setContentByJsonId(id, json.split('\n'), collapseData, isError);
-        })
-        .finally(() => {
-          setWaitJson(false);
+      const action = e.data.action;
+      const id = e.data.id;
+      if (action === 'LOADING') {
+        const part = e.data.part;
+        const l = arr.length;
+        let i = 0;
+        while (i < part.length) {
+          arr[l + i] = part[i];
+          i++;
+        }
+      } else if (action === 'COMPLETE') {
+        setFileData((data) => {
+          return data.map((item) => {
+            if (item.id === id) {
+              item.status = 'AVAILABLE';
+              item.content = arr;
+            }
+            return item;
+          });
         });
-
-      readFileWorker.terminate();
+      } else if (action === 'ERROR') {
+        setContentByJsonId(id, [e.data.error], {}, true);
+      }
     };
   };
 

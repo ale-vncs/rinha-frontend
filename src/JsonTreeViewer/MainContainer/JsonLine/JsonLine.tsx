@@ -47,7 +47,7 @@ export const JsonLine = ({
     const keyBracket = /"(.+)": ({|\[)/; // "name": {
     const brackets = /^\s*({|}|]|\[),?/; // \t [
     const numberValue = /^\s*"(.+)":\s([0-9.]+)(?=,?)/; // "age": 4
-    const stringValue = /^\s*"(.+)":\s"(.+)"(?=,?)/; // "name": "Ale"
+    const stringValue = /^\s*"(.+)":\s"(.*)"(?=,?)/; // "name": "Ale"
     const linkValue =
       /^\s*"(.+)":\s"([(http(s)?)://(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*))"(?=,?)/; // "name": "Ale"
     const booleanValue = /^\s*"(.+)":\s(true|false|null|undefined)(?=,?)/; // "isOk": true
