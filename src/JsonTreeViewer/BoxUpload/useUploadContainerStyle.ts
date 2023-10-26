@@ -10,9 +10,9 @@ export const useUploadContainerStyle = makeSx((theme) => {
       borderColor: theme.palette.grey.A200,
       borderWidth: 2,
       borderStyle: isDragging ? 'dashed' : 'none',
-      boxShadow: theme.shadows[4],
+      boxShadow: theme.shadows[2],
       textAlign: 'center',
-      color: theme.palette.grey['600'],
+      color: theme.palette.grey['800'],
       cursor: 'pointer',
       transition: theme.transitions.create(['background', 'padding'], {
         easing: 'ease',

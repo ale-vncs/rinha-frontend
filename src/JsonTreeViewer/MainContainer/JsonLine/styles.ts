@@ -1,5 +1,6 @@
 import { makeSx } from '@utils/makeSx';
 import { grey } from '@mui/material/colors';
+import { alpha } from '@mui/material';
 
 export interface StyleProps {
   totalLine: number;
@@ -14,7 +15,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
   const fontSize = '0.65rem';
 
   return {
-    line: {
+    line: (hasProblem: boolean) => ({
       display: 'flex',
       flexDirection: 'row',
       flexWrap: 'nowrap',
@@ -25,6 +26,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
       height: lineHeight,
       fontSize: '1rem',
       overflowY: 'clip',
+      background: hasProblem ? alpha(theme.palette.error.light, 0.08) : undefined,
       '&:hover': {
         background: 'rgba(83, 169, 255, 0.1)',
       },
@@ -61,7 +63,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
         height: 0,
         overflow: 'hidden',
       },
-    },
+    }),
     lineCount: {
       fontSize: fontSize,
       fontFamily: theme.typography.fontFamily,

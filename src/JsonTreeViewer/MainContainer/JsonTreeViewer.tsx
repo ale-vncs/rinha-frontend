@@ -1,7 +1,7 @@
 import { useJsonProvider } from '@hooks/useJsonProvider';
 import { areEqual, ListChildComponentProps, VariableSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { Box, Divider, Paper } from '@mui/material';
+import { Alert, Box, Divider, Paper } from '@mui/material';
 import { HandleCollapseParam, JsonLine } from './JsonLine/JsonLine';
 import { memo, useEffect, useRef } from 'react';
 import { JsonNotSelected } from './JsonNotSelected';
@@ -84,6 +84,12 @@ export const JsonTreeViewer = () => {
       >
         <JsonHeader jsonSelected={jsonSelected} />
         <Divider />
+        {!!jsonSelected.problem && (
+          <Box width={'100%'}>
+            <Alert severity={'error'}>{jsonSelected.problem.error}</Alert>
+            <Divider />
+          </Box>
+        )}
         <Box flex={1} width={'100%'}>
           <AutoSizer>
             {({ height, width }) => (

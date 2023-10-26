@@ -34,7 +34,8 @@ export const JsonLine = ({
   disableCollapse,
   style,
 }: JsonLineProps) => {
-  const { tabSize, wordSearchPosition, wordSearch, isCaseSensitive, currentIndexWordMarked } = useJsonFeatureProvider();
+  const { tabSize, wordSearchPosition, wordSearch, isCaseSensitive, currentIndexWordMarked, jsonSelected } =
+    useJsonFeatureProvider();
   const classes = useJsonLinesStyles({ totalLine, tabSize });
 
   const [isCollapse, setIsCollapse] = useState(isCol);
@@ -42,6 +43,7 @@ export const JsonLine = ({
   const lineId = (lineNumber: number) => `json-line-${lineNumber}`;
 
   const tabCount = lineData.match(/\t/g)?.length ?? 0;
+  const isLineProblem = jsonSelected.problem?.line === lineNumber;
 
   const colorLine = () => {
     const keyBracket = /"(.+)": ({|\[)/; // "name": {
@@ -171,7 +173,7 @@ export const JsonLine = ({
   };
 
   return (
-    <Box id={lineId(lineNumber)} sx={classes('line')} style={style}>
+    <Box id={lineId(lineNumber)} sx={classes('line', isLineProblem)} style={style}>
       <Box sx={classes('lineCount')}>
         <p>{lineNumber}</p>
       </Box>

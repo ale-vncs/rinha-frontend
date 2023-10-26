@@ -7,13 +7,17 @@ interface ReadFileWorkerError {
 interface ReadFileWorkerComplete {
   id: string;
   action: 'COMPLETE';
-  collapseData: Record<number, number>;
+  problem: {
+    error: string;
+    line: number;
+  } | null;
 }
 
 interface ReadFileWorkerPart {
   id: string;
   action: 'LOADING';
   part: string[];
+  collapseData: Record<number, number>;
 }
 
 export type ReadFileWorkerReturn = ReadFileWorkerError | ReadFileWorkerComplete | ReadFileWorkerPart;
@@ -28,55 +32,60 @@ const sendError = (id: string, err: string) => {
   self.postMessage(data);
 };
 
-const sendComplete = (id: string, collapseData: ReadFileWorkerComplete['collapseData']) => {
+const sendComplete = (id: string, problem: ReadFileWorkerComplete['problem']) => {
   const data: ReadFileWorkerReturn = {
     id,
     action: 'COMPLETE',
-    collapseData,
+    problem,
   };
 
   self.postMessage(data);
 };
 
-const sendPart = (id: string, part: ReadFileWorkerPart['part']) => {
+const sendPart = (id: string, part: ReadFileWorkerPart['part'], collapseData: ReadFileWorkerPart['collapseData']) => {
   const data: ReadFileWorkerPart = {
     id,
     action: 'LOADING',
     part,
+    collapseData,
   };
   self.postMessage(data);
 };
 
-self.onmessage = (e: MessageEvent<{ jsonId: string; file: File }>) => {
+self.onmessage = async (e: MessageEvent<{ jsonId: string; file: File }>) => {
   const { jsonId, file } = e.data;
 
   console.time(`${jsonId} : ${file.name} validate`);
-
-  const collapseData: Record<number, number> = {};
+  const problem: ReadFileWorkerComplete['problem'] = {
+    error: '',
+    line: -1,
+  };
 
   file
     .stream()
     .pipeThrough(new TextDecoderStream())
-    .pipeThrough(parseJson())
-    .pipeThrough(buildCollapseData(collapseData))
+    .pipeThrough(parseJson(problem))
+    .pipeThrough(buildCollapseData())
     .pipeTo(
       new WritableStream({
-        write(data) {
-          sendPart(jsonId, data);
+        write({ data, collapseData }) {
+          sendPart(jsonId, data, collapseData);
         },
         close() {
           console.timeEnd(`${jsonId} : ${file.name} validate`);
-          sendComplete(jsonId, collapseData);
+          sendComplete(jsonId, problem.error ? problem : null);
+          self.close();
         },
       }),
     )
     .catch((err: Error) => {
       console.error(err);
       sendError(jsonId, err.message);
+      self.close();
     });
 };
 
-const parseJson = () => {
+const parseJson = (problem: NonNullable<ReadFileWorkerComplete['problem']>) => {
   let tabSize = 0;
   let putTabChar = false;
   let isString = false;
@@ -97,14 +106,17 @@ const parseJson = () => {
     let jsonFinal = '';
     const listLine: string[] = [];
     let i = 0;
+
     while (i < text.length) {
       const ch = text[i];
       i++;
+
       if (ch === '\n') continue;
+      if (ch === '\t') continue;
       if (ch === ' ' && !isString) continue;
       if (putTabChar && !isCloseBracket) jsonFinal += repeat('\t', tabSize);
 
-      if (ch === '"') isString = !isString;
+      if (ch === '"' && text[i - 2] !== '\\') isString = !isString;
       isCloseBracket = false;
 
       if (ch === '{' || ch === '[') {
@@ -140,21 +152,32 @@ const parseJson = () => {
 
   return new TransformStream<string, string[]>({
     transform(chunk, controller) {
-      jsonToValidade += chunk;
-      controller.enqueue(jsonFormat(chunk));
+      const f = jsonFormat(chunk);
+      jsonToValidade += f.join('\n');
+      controller.enqueue(f);
     },
     flush() {
-      JSON.parse(jsonToValidade);
+      try {
+        JSON.parse(jsonToValidade);
+      } catch (e) {
+        const msg = (e as Error).message;
+        const reg = /Expected ',' or '}' after property value in JSON at position \d+ \(line (\d+) column \d+\)/;
+        const line = (reg.exec(msg) as RegExpExecArray)[1];
+        problem.error = msg;
+        problem.line = Number(line);
+      }
     },
   });
 };
 
-const buildCollapseData = (collapseData: Record<number, number>) => {
+const buildCollapseData = () => {
   let lineIndex = 0;
   const lastIndex: number[] = [];
 
-  return new TransformStream<string[], string[]>({
+  return new TransformStream<string[], { data: string[]; collapseData: Record<number, number> }>({
     transform(chunk, controller) {
+      const collapseData: Record<number, number> = {};
+
       for (const line of chunk) {
         const isOpenBracket = (() => {
           const reg = /[{[]$/g;
@@ -176,7 +199,7 @@ const buildCollapseData = (collapseData: Record<number, number>) => {
 
         lineIndex++;
       }
-      controller.enqueue(chunk);
+      controller.enqueue({ data: chunk, collapseData });
     },
   });
 };

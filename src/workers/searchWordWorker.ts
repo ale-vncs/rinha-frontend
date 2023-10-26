@@ -55,4 +55,5 @@ self.onmessage = async (e: MessageEvent<SearchWordWorkerInput>) => {
     if (indices.length) wordPositions[index] = indices;
   }
   sendMessage(wordPositions, total);
+  self.close();
 };

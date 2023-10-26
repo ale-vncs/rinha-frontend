@@ -7,6 +7,10 @@ export interface FileData {
   status: 'LOADING' | 'ERROR' | 'AVAILABLE';
   content: string[];
   collapseData: Record<number, number>;
+  problem?: {
+    error: string;
+    line: number;
+  };
 }
 
 interface JsonProviderContext {
@@ -54,26 +58,49 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
     const jsonId = addJson(file.name);
 
     readFileWorker.postMessage({ jsonId, file });
+
     const arr: string[] = [];
+    const collapse: Record<number, number> = {};
+    let upCount = 51;
+
     readFileWorker.onmessage = (e: MessageEvent<ReadFileWorkerReturn>) => {
       const action = e.data.action;
       const id = e.data.id;
+
       if (action === 'LOADING') {
-        const { part } = e.data;
+        const { part, collapseData } = e.data;
         const l = arr.length;
         let i = 0;
         while (i < part.length) {
           arr[l + i] = part[i];
           i++;
         }
+        for (const key in collapseData) {
+          collapse[key] = collapseData[key];
+        }
+        if (upCount > 50) {
+          setFileData((data) => {
+            return data.map((item) => {
+              if (item.id === id) {
+                item.content = arr;
+                item.status = 'LOADING';
+                item.collapseData = collapse;
+              }
+              return item;
+            });
+          });
+          upCount = 0;
+        }
+        upCount++;
       } else if (action === 'COMPLETE') {
-        const { collapseData } = e.data;
+        const problem = e.data.problem;
         setFileData((data) => {
           return data.map((item) => {
             if (item.id === id) {
-              item.status = 'AVAILABLE';
               item.content = arr;
-              item.collapseData = collapseData;
+              item.status = problem ? 'ERROR' : 'AVAILABLE';
+              item.collapseData = collapse;
+              item.problem = problem || undefined;
             }
             return item;
           });

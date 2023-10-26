@@ -5,6 +5,7 @@ import { VariableSizeList as List } from 'react-window';
 import debounce from 'lodash.debounce';
 
 interface JsonFeatureProviderContextProps {
+  jsonSelected: FileData;
   tabSize: number;
   wordSearchPosition: SearchWordWorkerReturn;
   changeTabSize: (size: number) => void;
@@ -149,6 +150,7 @@ export const JsonFeatureProvider = ({
   return (
     <JsonFeatureProviderContext.Provider
       value={{
+        jsonSelected,
         tabSize,
         changeTabSize,
         searchWord,
