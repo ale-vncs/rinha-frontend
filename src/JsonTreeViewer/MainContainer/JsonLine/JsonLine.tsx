@@ -179,7 +179,12 @@ export const JsonLine = ({
       </Box>
       {isOpenBracket && (
         <Tooltip title={disableCollapse ? 'Disabled because have many line to collapse' : ''} placement={'right'} arrow>
-          <input type="button" disabled={disableCollapse} value={isCollapse ? '+' : '-'} onClick={toggleCollapse} />
+          <input
+            type="button"
+            disabled={disableCollapse || jsonSelected.status === 'LOADING'}
+            value={isCollapse ? '+' : '-'}
+            onClick={toggleCollapse}
+          />
         </Tooltip>
       )}
       {generateBorderMarker()}

@@ -21,7 +21,7 @@ export const JsonTreeViewer = () => {
   }
 
   function setRowHeight(index: number, size: number) {
-    rowHeights.current = { ...rowHeights.current, [index]: size };
+    rowHeights.current[index] = size;
   }
 
   function scrollTop() {
@@ -40,14 +40,16 @@ export const JsonTreeViewer = () => {
 
   const Row = memo(({ index, style, data }: ListChildComponentProps<FileData>) => {
     const lineData = data.content[index];
-
-    const isCollapse = !getRowHeight(index + 1) && !!getRowHeight(index);
+    const divHeight = getRowHeight(index);
+    const isCollapse = !getRowHeight(index + 1) && !!divHeight;
 
     const disableCollapse = (data.collapseData[index] ?? 0) - index > 5000;
 
+    if (!divHeight) return null;
+
     return (
       <JsonLine
-        style={{ ...style, display: !getRowHeight(index) ? 'none' : undefined }}
+        style={style}
         disableCollapse={disableCollapse}
         isCollapse={isCollapse}
         lineNumber={index + 1}
