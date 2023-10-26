@@ -38,7 +38,7 @@ export const JsonList = () => {
     <Stack component={Paper} variant={'outlined'} direction={'column'} height={'100%'} p={1} rowGap={1}>
       <Stack direction={'column'} flex={1} rowGap={1} overflow={'auto'}>
         {files.map((item) => {
-          const { background, border, font } = getColorsByStatus(item.status);
+          const { background, font } = getColorsByStatus(item.status);
           const isSelected = item.id === jsonSelected?.id;
 
           return (
@@ -52,13 +52,14 @@ export const JsonList = () => {
                 width={'100%'}
                 sx={{
                   color: font,
-                  borderColor: isSelected ? 'blue' : border,
                   background,
                   p: 1,
                   cursor: item.status === 'AVAILABLE' ? 'pointer' : null,
                 }}
               >
-                <Typography>{item.name}</Typography>
+                <Typography pl={isSelected ? 2 : 0} sx={{ transition: 'padding .3s ease' }}>
+                  {item.name}
+                </Typography>
                 {item.status === 'LOADING' && <CircularProgress size={16} color={'inherit'} />}
                 {item.status === 'ERROR' && (
                   <Box
@@ -73,6 +74,9 @@ export const JsonList = () => {
                   >
                     !
                   </Box>
+                )}
+                {isSelected && (
+                  <Box position={'absolute'} left={3} top={3} bottom={3} width={5} bgcolor={'white'} borderRadius={2} />
                 )}
               </Stack>
             </ButtonBase>
