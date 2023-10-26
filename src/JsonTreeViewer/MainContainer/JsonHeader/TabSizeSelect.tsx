@@ -3,7 +3,7 @@ import { useJsonFeatureProvider } from '@hooks/useJsonFeatureProvider';
 import { ChangeEvent } from 'react';
 
 export const TabSizeSelect = () => {
-  const { tabSize, changeTabSize } = useJsonFeatureProvider();
+  const { tabSize, changeTabSize, jsonSelected } = useJsonFeatureProvider();
 
   const tabSizeList = [2, 4, 6, 8];
 
@@ -16,6 +16,7 @@ export const TabSizeSelect = () => {
       variant={'outlined'}
       size={'small'}
       select
+      disabled={jsonSelected.status === 'LOADING'}
       value={tabSize}
       onChange={onChange}
       InputProps={{

@@ -23,6 +23,7 @@ export const SearchInput = () => {
     nextWordFound,
     previousWordFound,
     isSearching,
+    jsonSelected,
   } = useJsonFeatureProvider();
 
   const [searchValue, setSearchValue] = useState('');
@@ -38,6 +39,7 @@ export const SearchInput = () => {
         size={'small'}
         placeholder={'Search'}
         fullWidth
+        disabled={jsonSelected.status === 'LOADING'}
         value={searchValue}
         onChange={(ev) => setSearchValue(ev.target.value)}
         InputProps={{
@@ -53,16 +55,19 @@ export const SearchInput = () => {
               )}
               {isSearching && <CircularProgress size={16} />}
               <Tooltip title={'Match Case'}>
-                <ToggleButton
-                  value="check"
-                  size={'small'}
-                  sx={{ p: 0.25, ml: 1 }}
-                  selected={isCaseSensitive}
-                  onChange={toggleCaseSensitive}
-                  color="primary"
-                >
-                  <FormatSize sx={{ fontSize: 18 }} />
-                </ToggleButton>
+                <span>
+                  <ToggleButton
+                    value="check"
+                    size={'small'}
+                    sx={{ p: 0.25, ml: 1 }}
+                    selected={isCaseSensitive}
+                    disabled={jsonSelected.status === 'LOADING'}
+                    onChange={toggleCaseSensitive}
+                    color="primary"
+                  >
+                    <FormatSize sx={{ fontSize: 18 }} />
+                  </ToggleButton>
+                </span>
               </Tooltip>
             </InputAdornment>
           ),
