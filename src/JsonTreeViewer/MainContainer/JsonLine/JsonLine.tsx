@@ -22,6 +22,7 @@ interface JsonLineProps {
   handleCollapse?: (param: HandleCollapseParam) => void;
   isCollapse: boolean;
   disableCollapse: boolean;
+  isOpenBracket: boolean;
   style: CSSProperties;
 }
 
@@ -32,6 +33,7 @@ export const JsonLine = ({
   handleCollapse,
   isCollapse: isCol,
   disableCollapse,
+  isOpenBracket,
   style,
 }: JsonLineProps) => {
   const { tabSize, wordSearchPosition, wordSearch, isCaseSensitive, currentIndexWordMarked, jsonSelected } =
@@ -146,11 +148,6 @@ export const JsonLine = ({
 
     handleCollapse?.({ divParentIndex: parentIndex, isCollapse: !isCollapse });
   };
-
-  const isOpenBracket = (() => {
-    const reg = /[{[]/g;
-    return reg.test(lineData);
-  })();
 
   const generateBorderMarker = () => {
     if (!tabCount) return <></>;

@@ -119,13 +119,13 @@ const parseJson = (problem: NonNullable<ReadFileWorkerComplete['problem']>) => {
       if (ch === '"' && text[i - 2] !== '\\') isString = !isString;
       isCloseBracket = false;
 
-      if (ch === '{' || ch === '[') {
+      if ((ch === '{' || ch === '[') && !isString) {
         jsonFinal += ch;
         listLine[listLine.length] = jsonFinal;
         jsonFinal = '';
         tabSize++;
         putTabChar = true;
-      } else if (ch === '}' || ch === ']') {
+      } else if ((ch === '}' || ch === ']') && !isString) {
         tabSize--;
         listLine[listLine.length] = jsonFinal;
         jsonFinal = repeat('\t', tabSize) + ch;

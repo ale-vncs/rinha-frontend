@@ -29,8 +29,10 @@ export const JsonTreeViewer = () => {
   }
 
   const handleCollapse = ({ divParentIndex, isCollapse }: HandleCollapseParam) => {
-    const collapseData = jsonSelected?.collapseData ?? {};
-    const lastIndex = collapseData[divParentIndex];
+    if (!jsonSelected) return;
+    const collapseData = jsonSelected.collapseData ?? {};
+    let lastIndex = collapseData[divParentIndex];
+    lastIndex = lastIndex === -1 ? jsonSelected.content.length : lastIndex;
     for (let i = divParentIndex + 1; i <= lastIndex; i++) {
       setRowHeight(i, isCollapse ? 0 : 20);
     }
@@ -56,6 +58,7 @@ export const JsonTreeViewer = () => {
         lineData={lineData}
         totalLine={data.content.length}
         handleCollapse={handleCollapse}
+        isOpenBracket={!!data.collapseData[index]}
       />
     );
   }, areEqual);
