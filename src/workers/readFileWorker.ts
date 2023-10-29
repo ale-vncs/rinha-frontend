@@ -90,8 +90,9 @@ const parseJson = (problem: NonNullable<ReadFileWorkerComplete['problem']>) => {
   let putTabChar = false;
   let isString = false;
   let isCloseBracket = false;
+  let nextCharIsString = false;
 
-  function repeat(x: string, n: number) {
+  const repeat = (x: string, n: number) => {
     let s = '';
     for (;;) {
       if (n & 1) s += x;
@@ -100,7 +101,7 @@ const parseJson = (problem: NonNullable<ReadFileWorkerComplete['problem']>) => {
       else break;
     }
     return s;
-  }
+  };
 
   const jsonFormat = (text: string) => {
     let jsonFinal = '';
@@ -116,7 +117,8 @@ const parseJson = (problem: NonNullable<ReadFileWorkerComplete['problem']>) => {
       if (ch === ' ' && !isString) continue;
       if (putTabChar && !isCloseBracket) jsonFinal += repeat('\t', tabSize);
 
-      if (ch === '"' && text[i - 2] !== '\\') isString = !isString;
+      if (ch === '"' && !nextCharIsString) isString = !isString;
+      nextCharIsString = ch === '\\' && !nextCharIsString;
       isCloseBracket = false;
 
       if ((ch === '{' || ch === '[') && !isString) {
@@ -162,7 +164,12 @@ const parseJson = (problem: NonNullable<ReadFileWorkerComplete['problem']>) => {
       } catch (e) {
         const msg = (e as Error).message;
         const reg = /Expected ',' or '}' after property value in JSON at position \d+ \(line (\d+) column \d+\)/;
-        const line = (reg.exec(msg) as RegExpExecArray)[1];
+        const matchArray = reg.exec(msg);
+        if (!matchArray) {
+          problem.error = msg;
+          return;
+        }
+        const line = matchArray[1];
         problem.error = msg;
         problem.line = Number(line);
       }
