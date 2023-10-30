@@ -1,10 +1,10 @@
-import { createContext, PropsWithChildren, useState } from 'react';
+import { createContext, PropsWithChildren, useRef, useState } from 'react';
 import { ReadFileWorkerReturn } from '@workers/readFileWorker';
 
 export interface FileData {
   id: string;
   name: string;
-  status: 'LOADING' | 'ERROR' | 'AVAILABLE';
+  status: 'LOADING' | 'ERROR' | 'AVAILABLE' | 'WAITING';
   content: string[];
   collapseData: Record<number, number>;
   problem?: {
@@ -26,9 +26,12 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
   const [fileData, setFileData] = useState<FileData[]>([]);
   const [jsonSelected, setJsonSelected] = useState<FileData | null>(null);
 
+  const bigFileWaitingList = useRef<{ id: string; file: File }[]>([]);
+  const bigFileIdLoading = useRef<string>();
+
   const addJson = (name: string) => {
     const id = (Math.random() + 1).toString(36).substring(2);
-    const jsonInfo: FileData = { name, id, status: 'LOADING', content: [], collapseData: {} };
+    const jsonInfo: FileData = { name, id, status: 'WAITING', content: [], collapseData: {} };
     setFileData((data) => [...data, jsonInfo]);
     return id;
   };
@@ -53,9 +56,26 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
   };
 
   const readFile: JsonProviderContext['readFile'] = (file) => {
-    const readFileWorker = getReadFileWorker();
-
+    const currentFileIsBig = file.size > 1024 * 20;
     const jsonId = addJson(file.name);
+
+    if (currentFileIsBig && bigFileIdLoading.current) {
+      bigFileWaitingList.current.push({
+        id: jsonId,
+        file,
+      });
+      return;
+    }
+
+    if (currentFileIsBig) {
+      bigFileIdLoading.current = jsonId;
+    }
+
+    sendToWorker(jsonId, file);
+  };
+
+  const sendToWorker = (jsonId: string, file: File) => {
+    const readFileWorker = getReadFileWorker();
 
     readFileWorker.postMessage({ jsonId, file });
 
@@ -105,8 +125,10 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
             return item;
           });
         });
+        readNextBigFile(jsonId);
       } else if (action === 'ERROR') {
         setContentByJsonId(id, [e.data.error], {}, true);
+        readNextBigFile(jsonId);
       }
     };
   };
@@ -120,6 +142,17 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
 
   const getReadFileWorker = () => {
     return new Worker(new URL('../workers/readFileWorker.ts', import.meta.url), { type: 'module' });
+  };
+
+  const readNextBigFile = (jsonIdHasCompleted: string) => {
+    if (bigFileIdLoading.current !== jsonIdHasCompleted) return;
+    const bigFile = bigFileWaitingList.current.shift();
+    if (bigFile) {
+      bigFileIdLoading.current = bigFile.id;
+      sendToWorker(bigFile.id, bigFile.file);
+    } else {
+      bigFileIdLoading.current = undefined;
+    }
   };
 
   return (

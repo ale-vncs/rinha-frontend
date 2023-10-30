@@ -3,6 +3,7 @@ import { Box, ButtonBase, CircularProgress, Paper, Stack, Typography, useTheme }
 import { FileData } from '@providers/JsonProvider';
 import { green, grey, red } from '@mui/material/colors';
 import { UploadContainer } from '@src/JsonTreeViewer/BoxUpload/UploadContainer';
+import { LockClock, PauseCircle } from '@mui/icons-material';
 
 export const JsonList = () => {
   const { palette } = useTheme();
@@ -23,6 +24,7 @@ export const JsonList = () => {
       AVAILABLE: green,
       ERROR: red,
       LOADING: grey,
+      WAITING: grey,
     };
 
     const color = backgroundColorByStatus[status];
@@ -60,6 +62,7 @@ export const JsonList = () => {
                 <Typography pl={isSelected ? 2 : 0} sx={{ transition: 'padding .3s ease' }}>
                   {item.name}
                 </Typography>
+                {item.status === 'WAITING' && <PauseCircle />}
                 {item.status === 'LOADING' && <CircularProgress size={16} color={'inherit'} />}
                 {item.status === 'ERROR' && (
                   <Box
