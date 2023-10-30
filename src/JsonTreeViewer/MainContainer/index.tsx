@@ -1,21 +1,15 @@
-import { Grid } from '@mui/material';
-import { JsonList } from './JsonList';
 import { JsonTreeViewer } from './JsonTreeViewer';
 import { useJsonProvider } from '@hooks/useJsonProvider';
+import { Box } from '@mui/material';
 
 export const MainContainer = () => {
-  const { files } = useJsonProvider();
+  const { jsonSelected } = useJsonProvider();
 
-  if (!files.length) return;
+  if (!jsonSelected) return;
 
   return (
-    <Grid container direction={'row'} gap={1} height={'100%'} overflow={'auto'} py={1}>
-      <Grid item xs={12} sm={3} overflow={'auto'} height={'100%'}>
-        <JsonList />
-      </Grid>
-      <Grid item xs={12} sm overflow={'auto'} height={'100%'}>
-        <JsonTreeViewer />
-      </Grid>
-    </Grid>
+    <Box width={'100%'} height={'100%'} py={1}>
+      <JsonTreeViewer />
+    </Box>
   );
 };

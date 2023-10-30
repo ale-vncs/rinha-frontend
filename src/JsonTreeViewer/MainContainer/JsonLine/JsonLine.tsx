@@ -53,7 +53,7 @@ export const JsonLine = ({
     const numberValue = /^\s*"(.+)":\s([0-9.]+)(?=,?)/; // "age": 4
     const stringValue = /^\s*"(.+)":\s"(.*)"(?=,?)/; // "name": "Ale"
     const linkValue =
-      /^\s*"(.+)":\s"([(http(s)?)://(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*))"(?=,?)/; // "name": "Ale"
+      /^\s*"(.+)":\s"([(http(s)?)://(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*))"(?=,?)/; // "link": "https:..."
     const booleanValue = /^\s*"(.+)":\s(true|false|null|undefined)(?=,?)/; // "isOk": true
 
     lineData = lineData.replace(/\t/g, '');
@@ -74,11 +74,20 @@ export const JsonLine = ({
       colorLine.hasComma = hasComma;
     };
 
+    const buildLineWhenCollapse = (bracket: string) => {
+      if (!isCollapse) return bracket;
+      const invertBracket: Record<string, string> = {
+        '{': '}',
+        '[': ']',
+      };
+      return bracket + '...' + invertBracket[bracket];
+    };
+
     if (brackets.test(lineData)) {
-      setLineColor(lineData, 'bracket');
+      setLineColor(buildLineWhenCollapse(lineData), 'bracket');
     } else if (keyBracket.test(lineData)) {
       const [, key, bracket] = keyBracket.exec(lineData) as RegExpExecArray;
-      setLineColor(bracket, 'bracket', key);
+      setLineColor(buildLineWhenCollapse(bracket), 'bracket', key);
     } else if (numberValue.test(lineData)) {
       const [, key, number] = numberValue.exec(lineData) as RegExpExecArray;
       setLineColor(number, 'number', key);
@@ -104,7 +113,8 @@ export const JsonLine = ({
     let markerLineIndex = 0;
     const markText = (text: string) => {
       if (!hasMarker) return text;
-      const regex = new RegExp(`${wordSearch}`, isCaseSensitive ? 'g' : 'gi');
+      const wordSearchAd = wordSearch.replace(/([+*?^$\\.[\]{}()|/])/g, '\\$1');
+      const regex = new RegExp(`${wordSearchAd}`, isCaseSensitive ? 'g' : 'gi');
       const markIndex = wordSearchPosition.positions[lineNumber - 1].findIndex((i) => currentIndexWordMarked === i);
 
       text = text.replace(regex, (value) => {

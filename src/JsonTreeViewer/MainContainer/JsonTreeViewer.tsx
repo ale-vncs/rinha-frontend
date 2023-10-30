@@ -33,7 +33,7 @@ export const JsonTreeViewer = () => {
     const collapseData = jsonSelected.collapseData ?? {};
     let lastIndex = collapseData[divParentIndex];
     lastIndex = lastIndex === -1 ? jsonSelected.content.length : lastIndex;
-    for (let i = divParentIndex + 1; i <= lastIndex; i++) {
+    for (let i = divParentIndex + 1; i <= lastIndex + 1; i++) {
       setRowHeight(i, isCollapse ? 0 : 20);
     }
 
@@ -82,6 +82,7 @@ export const JsonTreeViewer = () => {
         component={Paper}
         variant={'outlined'}
         height={'100%'}
+        width={'100%'}
         overflow={'auto'}
         display={'flex'}
         flexDirection={'column'}

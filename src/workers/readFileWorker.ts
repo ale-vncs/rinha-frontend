@@ -1,11 +1,9 @@
 interface ReadFileWorkerError {
-  id: string;
   action: 'ERROR';
   error: string;
 }
 
 interface ReadFileWorkerComplete {
-  id: string;
   action: 'COMPLETE';
   problem: {
     error: string;
@@ -14,7 +12,6 @@ interface ReadFileWorkerComplete {
 }
 
 interface ReadFileWorkerPart {
-  id: string;
   action: 'LOADING';
   part: string[];
   collapseData: Record<number, number>;
@@ -22,9 +19,8 @@ interface ReadFileWorkerPart {
 
 export type ReadFileWorkerReturn = ReadFileWorkerError | ReadFileWorkerComplete | ReadFileWorkerPart;
 
-const sendError = (id: string, err: string) => {
+const sendError = (err: string) => {
   const data: ReadFileWorkerReturn = {
-    id,
     action: 'ERROR',
     error: err,
   };
@@ -32,9 +28,8 @@ const sendError = (id: string, err: string) => {
   self.postMessage(data);
 };
 
-const sendComplete = (id: string, problem: ReadFileWorkerComplete['problem']) => {
+const sendComplete = (problem: ReadFileWorkerComplete['problem']) => {
   const data: ReadFileWorkerReturn = {
-    id,
     action: 'COMPLETE',
     problem,
   };
@@ -42,9 +37,8 @@ const sendComplete = (id: string, problem: ReadFileWorkerComplete['problem']) =>
   self.postMessage(data);
 };
 
-const sendPart = (id: string, part: ReadFileWorkerPart['part'], collapseData: ReadFileWorkerPart['collapseData']) => {
+const sendPart = (part: ReadFileWorkerPart['part'], collapseData: ReadFileWorkerPart['collapseData']) => {
   const data: ReadFileWorkerPart = {
-    id,
     action: 'LOADING',
     part,
     collapseData,
@@ -52,10 +46,10 @@ const sendPart = (id: string, part: ReadFileWorkerPart['part'], collapseData: Re
   self.postMessage(data);
 };
 
-self.onmessage = async (e: MessageEvent<{ jsonId: string; file: File }>) => {
-  const { jsonId, file } = e.data;
+self.onmessage = async (e: MessageEvent<File>) => {
+  const file = e.data;
 
-  console.time(`${jsonId} : ${file.name} validate`);
+  console.time(`${file.name} validate`);
   const problem: ReadFileWorkerComplete['problem'] = {
     error: '',
     line: -1,
@@ -69,18 +63,18 @@ self.onmessage = async (e: MessageEvent<{ jsonId: string; file: File }>) => {
     .pipeTo(
       new WritableStream({
         write({ data, collapseData }) {
-          sendPart(jsonId, data, collapseData);
+          sendPart(data, collapseData);
         },
         close() {
-          console.timeEnd(`${jsonId} : ${file.name} validate`);
-          sendComplete(jsonId, problem.error ? problem : null);
+          console.timeEnd(`${file.name} validate`);
+          sendComplete(problem.error ? problem : null);
           self.close();
         },
       }),
     )
     .catch((err: Error) => {
       console.error(err);
-      sendError(jsonId, err.message);
+      sendError(err.message);
       self.close();
     });
 };
@@ -101,6 +95,14 @@ const parseJson = (problem: NonNullable<ReadFileWorkerComplete['problem']>) => {
       else break;
     }
     return s;
+  };
+
+  const charHtmlConverter = (char: string) => {
+    const parse: Record<string, string> = {
+      '<': '&#60;',
+      '>': '&#62;',
+    };
+    return parse[char] ?? char;
   };
 
   const jsonFormat = (text: string) => {
@@ -143,7 +145,7 @@ const parseJson = (problem: NonNullable<ReadFileWorkerComplete['problem']>) => {
         jsonFinal += ch + ' ';
       } else {
         putTabChar = false;
-        jsonFinal += ch;
+        jsonFinal += charHtmlConverter(ch);
       }
     }
     listLine[listLine.length] = jsonFinal;

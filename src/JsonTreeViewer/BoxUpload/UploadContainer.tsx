@@ -34,9 +34,7 @@ export const UploadContainer = () => {
   const readFileList = (files: FileList | null) => {
     setIsDragging(false);
     if (!files) return;
-    for (const file of files) {
-      readFile(file);
-    }
+    readFile(files[0]);
   };
 
   return (
@@ -48,7 +46,7 @@ export const UploadContainer = () => {
       onDrop={onDrop}
     >
       <Typography p={2}>{isDragging ? 'Drop json' : 'Click or drag your json here'}</Typography>
-      <input multiple accept={'application/json'} type={'file'} id={'upload'} onChange={onSelectFile} />
+      <input accept={'application/json'} type={'file'} id={'upload'} onChange={onSelectFile} />
     </Box>
   );
 };

@@ -68,7 +68,6 @@ export const JsonFeatureProvider = ({
         value,
         jsonLines: jsonSelected.content,
         isCaseSensitive,
-        jsonId: jsonSelected.id,
       };
 
       worker.postMessage(message);

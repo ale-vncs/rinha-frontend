@@ -4,7 +4,7 @@ import { ReadFileWorkerReturn } from '@workers/readFileWorker';
 export interface FileData {
   id: string;
   name: string;
-  status: 'LOADING' | 'ERROR' | 'AVAILABLE' | 'WAITING';
+  status: 'LOADING' | 'ERROR' | 'AVAILABLE';
   content: string[];
   collapseData: Record<number, number>;
   problem?: {
@@ -15,69 +15,31 @@ export interface FileData {
 
 interface JsonProviderContext {
   readFile: (file: File) => void;
-  selectJsonById: (id: string) => void;
-  files: FileData[];
   jsonSelected: FileData | null;
 }
 
 export const Context = createContext<JsonProviderContext>({} as never);
 
 export const JsonProvider = ({ children }: PropsWithChildren) => {
-  const [fileData, setFileData] = useState<FileData[]>([]);
   const [jsonSelected, setJsonSelected] = useState<FileData | null>(null);
 
-  const bigFileWaitingList = useRef<{ id: string; file: File }[]>([]);
-  const bigFileIdLoading = useRef<string>();
+  const workerRef = useRef<Worker>();
 
   const addJson = (name: string) => {
     const id = (Math.random() + 1).toString(36).substring(2);
-    const jsonInfo: FileData = { name, id, status: 'WAITING', content: [], collapseData: {} };
-    setFileData((data) => [...data, jsonInfo]);
-    return id;
-  };
-
-  const setContentByJsonId = (
-    id: string,
-    content: string[],
-    collapseData: Record<number, number>,
-    isError: boolean,
-  ) => {
-    const jsonStatus: FileData['status'] = !isError ? 'AVAILABLE' : 'ERROR';
-    setFileData((data) => {
-      return data.map((item) => {
-        if (item.id === id) {
-          item.status = jsonStatus;
-          item.content = content;
-          item.collapseData = collapseData;
-        }
-        return item;
-      });
-    });
+    const jsonInfo: FileData = { id, name, status: 'LOADING', content: [], collapseData: {} };
+    setJsonSelected(() => jsonInfo);
   };
 
   const readFile: JsonProviderContext['readFile'] = (file) => {
-    const currentFileIsBig = file.size > 1024 * 20;
-    const jsonId = addJson(file.name);
-
-    if (currentFileIsBig && bigFileIdLoading.current) {
-      bigFileWaitingList.current.push({
-        id: jsonId,
-        file,
-      });
-      return;
-    }
-
-    if (currentFileIsBig) {
-      bigFileIdLoading.current = jsonId;
-    }
-
-    sendToWorker(jsonId, file);
+    addJson(file.name);
+    sendToWorker(file);
   };
 
-  const sendToWorker = (jsonId: string, file: File) => {
+  const sendToWorker = (file: File) => {
     const readFileWorker = getReadFileWorker();
 
-    readFileWorker.postMessage({ jsonId, file });
+    readFileWorker.postMessage(file);
 
     const arr: string[] = [];
     const collapse: Record<number, number> = {};
@@ -85,7 +47,6 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
 
     readFileWorker.onmessage = (e: MessageEvent<ReadFileWorkerReturn>) => {
       const action = e.data.action;
-      const id = e.data.id;
 
       if (action === 'LOADING') {
         const { part, collapseData } = e.data;
@@ -99,63 +60,51 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
           collapse[key] = collapseData[key];
         }
         if (upCount > 50) {
-          setFileData((data) => {
-            return data.map((item) => {
-              if (item.id === id) {
-                item.content = arr;
-                item.status = 'LOADING';
-                item.collapseData = collapse;
-              }
-              return item;
-            });
+          setJsonSelected((prev) => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              content: arr,
+              status: 'LOADING',
+              collapseData: collapse,
+            };
           });
           upCount = 0;
         }
         upCount++;
       } else if (action === 'COMPLETE') {
         const problem = e.data.problem;
-        setFileData((data) => {
-          return data.map((item) => {
-            if (item.id === id) {
-              item.content = arr;
-              item.status = problem ? 'ERROR' : 'AVAILABLE';
-              item.collapseData = collapse;
-              item.problem = problem || undefined;
-            }
-            return item;
-          });
+        setJsonSelected((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            content: arr,
+            status: problem ? 'ERROR' : 'AVAILABLE',
+            collapseData: collapse,
+            problem: problem || undefined,
+          };
         });
-        readNextBigFile(jsonId);
       } else if (action === 'ERROR') {
-        setContentByJsonId(id, [e.data.error], {}, true);
-        readNextBigFile(jsonId);
+        const error = e.data.error;
+        setJsonSelected((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            content: [error],
+            status: 'ERROR',
+            collapseData: {},
+          };
+        });
       }
     };
   };
 
-  const selectJsonById = (id: string) => {
-    const jsonData = fileData.find((item) => item.id === id);
-    if (jsonData) {
-      setJsonSelected(jsonData);
-    }
-  };
-
   const getReadFileWorker = () => {
-    return new Worker(new URL('../workers/readFileWorker.ts', import.meta.url), { type: 'module' });
+    const newWorker = new Worker(new URL('../workers/readFileWorker.ts', import.meta.url), { type: 'module' });
+    workerRef.current?.terminate();
+    workerRef.current = newWorker;
+    return newWorker;
   };
 
-  const readNextBigFile = (jsonIdHasCompleted: string) => {
-    if (bigFileIdLoading.current !== jsonIdHasCompleted) return;
-    const bigFile = bigFileWaitingList.current.shift();
-    if (bigFile) {
-      bigFileIdLoading.current = bigFile.id;
-      sendToWorker(bigFile.id, bigFile.file);
-    } else {
-      bigFileIdLoading.current = undefined;
-    }
-  };
-
-  return (
-    <Context.Provider value={{ readFile, files: fileData, jsonSelected, selectJsonById }}>{children}</Context.Provider>
-  );
+  return <Context.Provider value={{ readFile, jsonSelected }}>{children}</Context.Provider>;
 };

@@ -6,7 +6,6 @@ export interface SearchWordWorkerReturn {
 export interface SearchWordWorkerInput {
   isCaseSensitive: boolean;
   value: string;
-  jsonId: string;
   jsonLines: string[];
 }
 
