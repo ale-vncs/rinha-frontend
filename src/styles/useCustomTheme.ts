@@ -54,8 +54,8 @@ export const useCustomTheme = (isDarkTheme: boolean, colorSchemeIndex: number) =
               contrastText: '#000',
             },
             background: {
-              default: isDarkTheme ? '#282A36' : undefined,
-              paper: isDarkTheme ? '#282A36' : undefined,
+              default: isDarkTheme ? '#282A36' : '#fff',
+              paper: isDarkTheme ? '#282A36' : '#fff',
               dark: '#263238',
             },
             text: {

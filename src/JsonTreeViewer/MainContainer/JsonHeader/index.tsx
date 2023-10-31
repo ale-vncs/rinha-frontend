@@ -15,27 +15,25 @@ export const JsonHeader = ({ jsonSelected }: JsonHeaderProps) => {
       <Grid item xs={12}>
         <Typography textAlign={'center'}>{jsonSelected.name}</Typography>
       </Grid>
-      <Grid item container gap={1}>
-        <Grid item xs>
-          <SearchInput key={jsonSelected.id} />
-        </Grid>
-        <Separator />
-        <Hidden smDown>
-          <Grid item>
-            <TabSizeSelect />
-          </Grid>
-        </Hidden>
-        <Hidden smDown>
-          <Grid item>
-            <ColorSchemeSelect />
-          </Grid>
-        </Hidden>
-        <Hidden smUp>
-          <Grid item>
-            <MenuOptions />
-          </Grid>
-        </Hidden>
+      <Grid item xs>
+        <SearchInput key={jsonSelected.id} />
       </Grid>
+      <Separator />
+      <Hidden smDown>
+        <Grid item>
+          <TabSizeSelect />
+        </Grid>
+      </Hidden>
+      <Hidden smDown>
+        <Grid item>
+          <ColorSchemeSelect />
+        </Grid>
+      </Hidden>
+      <Hidden smUp>
+        <Grid item>
+          <MenuOptions />
+        </Grid>
+      </Hidden>
       <Box position={'absolute'} bottom={-2} left={0} width={'100%'}>
         {jsonSelected.status === 'LOADING' && <LinearProgress />}
       </Box>
@@ -45,7 +43,7 @@ export const JsonHeader = ({ jsonSelected }: JsonHeaderProps) => {
 
 const Separator = () => {
   return (
-    <Grid item height={'100%'} display={'flex'}>
+    <Grid item height={'40px'} display={'flex'}>
       <Divider orientation={'vertical'} flexItem variant={'fullWidth'} />
     </Grid>
   );
