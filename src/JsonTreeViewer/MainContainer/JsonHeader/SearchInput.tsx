@@ -37,7 +37,7 @@ export const SearchInput = () => {
       <TextField
         variant={'outlined'}
         size={'small'}
-        placeholder={'Search'}
+        placeholder={`Search in ${jsonSelected.name}`}
         fullWidth
         disabled={jsonSelected.status === 'LOADING'}
         value={searchValue}

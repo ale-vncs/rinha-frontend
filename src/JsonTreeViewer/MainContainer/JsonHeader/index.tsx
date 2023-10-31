@@ -1,8 +1,9 @@
-import { Box, Divider, Grid, LinearProgress, Typography } from '@mui/material';
+import { Box, Divider, Grid, Hidden, LinearProgress, Typography } from '@mui/material';
 import { FileData } from '@providers/JsonProvider';
 import { SearchInput } from './SearchInput';
 import { TabSizeSelect } from './TabSizeSelect';
 import { ColorSchemeSelect } from './ColorSchemeSelect';
+import { MenuOptions } from '@src/JsonTreeViewer/MainContainer/JsonHeader/MenuOptions';
 
 interface JsonHeaderProps {
   jsonSelected: FileData;
@@ -11,19 +12,29 @@ interface JsonHeaderProps {
 export const JsonHeader = ({ jsonSelected }: JsonHeaderProps) => {
   return (
     <Grid container direction={'row'} gap={1} alignItems={'center'} position={'relative'} p={0.5}>
-      <Grid item>
-        <Typography>{jsonSelected.name}</Typography>
+      <Grid item xs={12}>
+        <Typography textAlign={'center'}>{jsonSelected.name}</Typography>
       </Grid>
-      <Separator />
-      <Grid item xs>
-        <SearchInput key={jsonSelected.id} />
-      </Grid>
-      <Separator />
-      <Grid item>
-        <TabSizeSelect />
-      </Grid>
-      <Grid item>
-        <ColorSchemeSelect />
+      <Grid item container gap={1}>
+        <Grid item xs>
+          <SearchInput key={jsonSelected.id} />
+        </Grid>
+        <Separator />
+        <Hidden smDown>
+          <Grid item>
+            <TabSizeSelect />
+          </Grid>
+        </Hidden>
+        <Hidden smDown>
+          <Grid item>
+            <ColorSchemeSelect />
+          </Grid>
+        </Hidden>
+        <Hidden smUp>
+          <Grid item>
+            <MenuOptions />
+          </Grid>
+        </Hidden>
       </Grid>
       <Box position={'absolute'} bottom={-2} left={0} width={'100%'}>
         {jsonSelected.status === 'LOADING' && <LinearProgress />}

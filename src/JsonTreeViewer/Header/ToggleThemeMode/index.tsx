@@ -6,7 +6,7 @@ export const ToggleThemeMode = () => {
   const { isDarkTheme, toggleDarkTheme } = useThemeProvider();
 
   return (
-    <Box position={'absolute'} top={10} right={10}>
+    <Box position={'fixed'} top={2} right={2}>
       <IconButton onClick={toggleDarkTheme}>{isDarkTheme ? <ModeNight /> : <WbSunny />}</IconButton>
     </Box>
   );
