@@ -1,7 +1,42 @@
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { useMemo } from 'react';
 
-export const useCustomTheme = (isDarkTheme: boolean) => {
+export const useCustomTheme = (isDarkTheme: boolean, colorSchemeIndex: number) => {
+  const colorSchemeList = [
+    {
+      lineHover: '#53A9FF19',
+      key: '#da6972',
+      bracket: '#afafaf',
+      normal: '#757575',
+      string: '#8dbd6d',
+      link: '#5c7fde',
+      number: '#e468cc',
+      boolean: '#d88f6d',
+    },
+    {
+      lineHover: '#53A9FF19',
+      key: '#89cac3',
+      bracket: '#ec9e1c',
+      normal: '#acc7c3',
+      string: '#c68970',
+      link: '#9a765e',
+      number: '#a9bf81',
+      boolean: '#2f65b0',
+    },
+    {
+      lineHover: '#53A9FF19',
+      key: '#c56e82',
+      bracket: '#bbbdc3',
+      normal: '#bbbdc3',
+      string: '#6aaa72',
+      link: '#6aaa72',
+      number: '#2aabb7',
+      boolean: '#ce8d6d',
+    },
+  ];
+
+  const colorSchemeSelected = colorSchemeList[colorSchemeIndex];
+
   return useMemo(
     () =>
       responsiveFontSizes(
@@ -28,28 +63,28 @@ export const useCustomTheme = (isDarkTheme: boolean) => {
             },
             jsonViewerColors: {
               lineHover: {
-                main: '#53A9FF19',
+                main: colorSchemeSelected.lineHover,
               },
               key: {
-                main: '#da6972',
+                main: colorSchemeSelected.key,
               },
               bracket: {
-                main: '#afafaf',
+                main: colorSchemeSelected.bracket,
               },
               normal: {
-                main: '#757575',
+                main: colorSchemeSelected.normal,
               },
               string: {
-                main: '#8dbd6d',
+                main: colorSchemeSelected.string,
               },
               link: {
-                main: '#5c7fde',
+                main: colorSchemeSelected.link,
               },
               number: {
-                main: '#e468cc',
+                main: colorSchemeSelected.number,
               },
               boolean: {
-                main: '#d88f6d',
+                main: colorSchemeSelected.boolean,
               },
             },
           },
@@ -67,6 +102,6 @@ export const useCustomTheme = (isDarkTheme: boolean) => {
           },
         }),
       ),
-    [isDarkTheme],
+    [isDarkTheme, colorSchemeSelected],
   );
 };

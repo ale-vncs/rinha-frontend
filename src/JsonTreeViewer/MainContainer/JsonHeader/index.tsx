@@ -2,6 +2,7 @@ import { Box, Divider, Grid, LinearProgress, Typography } from '@mui/material';
 import { FileData } from '@providers/JsonProvider';
 import { SearchInput } from './SearchInput';
 import { TabSizeSelect } from './TabSizeSelect';
+import { ColorSchemeSelect } from './ColorSchemeSelect';
 
 interface JsonHeaderProps {
   jsonSelected: FileData;
@@ -21,7 +22,10 @@ export const JsonHeader = ({ jsonSelected }: JsonHeaderProps) => {
       <Grid item>
         <TabSizeSelect />
       </Grid>
-      <Box position={'absolute'} bottom={0} left={0} width={'100%'}>
+      <Grid item>
+        <ColorSchemeSelect />
+      </Grid>
+      <Box position={'absolute'} bottom={-2} left={0} width={'100%'}>
         {jsonSelected.status === 'LOADING' && <LinearProgress />}
       </Box>
     </Grid>

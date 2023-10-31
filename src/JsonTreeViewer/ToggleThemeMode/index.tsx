@@ -1,9 +1,9 @@
 import { Box, IconButton } from '@mui/material';
 import { ModeNight, WbSunny } from '@mui/icons-material';
-import { useToggleTheme } from '@hooks/useToggleTheme';
+import { useThemeProvider } from '@hooks/useThemeProvider';
 
 export const ToggleThemeMode = () => {
-  const { isDarkTheme, toggleDarkTheme } = useToggleTheme();
+  const { isDarkTheme, toggleDarkTheme } = useThemeProvider();
 
   return (
     <Box position={'absolute'} top={10} right={10}>
