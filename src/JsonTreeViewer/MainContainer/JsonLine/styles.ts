@@ -1,5 +1,4 @@
-import { makeSx } from '@utils/makeSx';
-import { grey } from '@mui/material/colors';
+import { makeSx } from '@src/styles/makeSx';
 import { alpha } from '@mui/material';
 
 export interface StyleProps {
@@ -13,6 +12,8 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
   const { totalLine, tabSize } = props;
   const totalLineSpace = String(totalLine).length;
   const fontSize = '0.65rem';
+
+  const { jsonViewerColors } = theme.palette;
 
   return {
     line: (hasProblem: boolean) => ({
@@ -28,7 +29,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
       overflowY: 'clip',
       background: hasProblem ? alpha(theme.palette.error.light, 0.08) : undefined,
       '&:hover': {
-        background: 'rgba(83, 169, 255, 0.1)',
+        background: jsonViewerColors.lineHover.main,
       },
       '& pre': {
         tabSize,
@@ -67,11 +68,11 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
     lineCount: {
       fontSize: fontSize,
       fontFamily: theme.typography.fontFamily,
-      color: grey['500'],
+      color: theme.palette.text.secondary,
       textAlign: 'center',
       marginRight: lineCountMargin,
       alignSelf: 'stretch',
-      borderRight: '2px solid #c6c6c6',
+      borderRight: `2px solid ${theme.palette.text.secondary}`,
       display: 'inline-flex',
       alignItems: 'center',
       '& > p': {
@@ -83,7 +84,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
       },
     },
     nested: {
-      borderLeft: '2px solid rgb(0, 0, 0, 0.05)',
+      borderLeft: `2px solid ${theme.palette.divider}`,
       position: 'absolute',
       left: `calc(${tabSize * 8.78}px - 2px)`,
       height: '100%',
@@ -91,25 +92,25 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
     preColor: {
       fontFamily: 'monospace',
       '& > .color-bracket': {
-        color: '#afafaf',
+        color: jsonViewerColors.bracket.main,
       },
       '& > .color-normal': {
-        color: grey['600'],
+        color: jsonViewerColors.normal.main,
       },
       '& > .color-key': {
-        color: '#da6972',
+        color: jsonViewerColors.key.main,
       },
       '& > .color-string': {
-        color: '#8dbd6d',
+        color: jsonViewerColors.string.main,
       },
       '& > .color-link': {
-        color: '#5c7fde',
+        color: jsonViewerColors.link.main,
       },
       '& > .color-number': {
-        color: '#e468cc',
+        color: jsonViewerColors.number.main,
       },
       '& > .color-boolean': {
-        color: '#d88f6d',
+        color: jsonViewerColors.boolean.main,
       },
     },
   };

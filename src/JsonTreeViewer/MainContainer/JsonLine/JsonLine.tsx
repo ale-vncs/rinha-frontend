@@ -133,7 +133,7 @@ export const JsonLine = ({
     const valueByType = () => {
       const { type, value } = colorLine;
       if (type === 'string') return markText(`"${value}"`);
-      if (type === 'link') return `"<a target='_blank' href='${value}'>${markText(value)}</a>"`;
+      if (type === 'link') return `"<a style='color: inherit' target='_blank' href='${value}'>${markText(value)}</a>"`;
       return markText(value);
     };
 

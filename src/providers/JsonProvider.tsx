@@ -43,7 +43,7 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
 
     const arr: string[] = [];
     const collapse: Record<number, number> = {};
-    let upCount = 51;
+    let upCount = Number.MAX_SAFE_INTEGER;
 
     readFileWorker.onmessage = (e: MessageEvent<ReadFileWorkerReturn>) => {
       const action = e.data.action;
@@ -59,7 +59,7 @@ export const JsonProvider = ({ children }: PropsWithChildren) => {
         for (const key in collapseData) {
           collapse[key] = collapseData[key];
         }
-        if (upCount > 50) {
+        if (upCount > 60) {
           setJsonSelected((prev) => {
             if (!prev) return null;
             return {

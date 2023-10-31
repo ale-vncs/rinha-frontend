@@ -76,7 +76,7 @@ export const JsonFeatureProvider = ({
         setWordSearchPosition(() => ev.data);
         setIsSearching(false);
       };
-    }, 300),
+    }, 600),
     [isCaseSensitive, jsonSelected],
   );
 

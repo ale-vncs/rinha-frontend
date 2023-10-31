@@ -25,7 +25,7 @@
       "@hooks/*": ["src/hooks/*"],
       "@providers/*": ["src/providers/*"],
       "@workers/*": ["src/workers/*"],
-      "@utils/*": ["src/utils/*"]
+      "@styles/*": ["src/styles/*"]
     }
   },
   "include": ["src"],

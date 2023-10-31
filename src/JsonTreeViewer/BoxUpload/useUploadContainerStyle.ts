@@ -1,4 +1,4 @@
-import { makeSx } from '@utils/makeSx';
+import { makeSx } from '@src/styles/makeSx';
 import { grey } from '@mui/material/colors';
 
 export const useUploadContainerStyle = makeSx((theme) => {
@@ -6,7 +6,7 @@ export const useUploadContainerStyle = makeSx((theme) => {
     boxUpload: (isDragging: boolean) => ({
       width: '100%',
       py: isDragging ? 3 : 0,
-      borderRadius: 2,
+      borderRadius: 1,
       borderColor: theme.palette.grey.A200,
       borderWidth: 2,
       borderStyle: isDragging ? 'dashed' : 'none',
