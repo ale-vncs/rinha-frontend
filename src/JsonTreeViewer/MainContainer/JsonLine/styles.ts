@@ -7,6 +7,7 @@ export interface StyleProps {
 }
 
 export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
+  const isDarkTheme = theme.palette.mode === 'dark';
   const lineCountMargin = '20px';
   const lineHeight = 20;
   const { totalLine, tabSize } = props;
@@ -50,7 +51,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
         lineHeight: 0.6,
         fontSize: fontSize,
         textAlign: 'center',
-        border: '1px solid #dcdcdc',
+        border: '0px',
         borderRadius: '2px',
         position: 'absolute',
         left: `calc(8px * ${totalLineSpace} + ${lineCountMargin})`,
@@ -59,7 +60,7 @@ export const useJsonLinesStyles = makeSx((theme, props: StyleProps) => {
         bottom: 0,
         padding: 0,
         margin: 'auto 0',
-        background: theme.palette.grey[300],
+        background: isDarkTheme ? theme.palette.grey[500] : theme.palette.grey[300],
       },
       '&:.line-collapse': {
         height: 0,

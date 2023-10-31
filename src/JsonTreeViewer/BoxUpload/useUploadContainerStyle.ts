@@ -2,6 +2,8 @@ import { makeSx } from '@src/styles/makeSx';
 import { grey } from '@mui/material/colors';
 
 export const useUploadContainerStyle = makeSx((theme) => {
+  const isDarkTheme = theme.palette.mode === 'dark';
+
   return {
     boxUpload: (isDragging: boolean) => ({
       width: '100%',
@@ -18,7 +20,7 @@ export const useUploadContainerStyle = makeSx((theme) => {
         easing: 'ease',
         duration: 200,
       }),
-      background: isDragging ? grey['400'] : grey['200'],
+      background: isDragging ? grey[isDarkTheme ? '600' : '400'] : grey[isDarkTheme ? '400' : '200'],
       '&: hover': {
         background: grey['400'],
       },
