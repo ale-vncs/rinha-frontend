@@ -3,6 +3,8 @@ import {
   ButtonGroup,
   CircularProgress,
   InputAdornment,
+  Paper,
+  Popper,
   Stack,
   TextField,
   ToggleButton,
@@ -26,15 +28,33 @@ export const SearchInput = () => {
     jsonSelected,
   } = useJsonFeatureProvider();
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     searchWord(searchValue);
   }, [searchValue]);
 
+  window.onkeydown = (e: KeyboardEvent) => {
+    if (e.ctrlKey && e.code === 'KeyF') {
+      e.preventDefault();
+      const el = document.getElementById('search-input');
+      setAnchorEl(el);
+      el?.focus();
+      setTimeout(() => {
+        setAnchorEl(null);
+      }, 2500);
+    }
+  };
+
+  const open = Boolean(anchorEl);
+  const popperId = open ? 'simple-popper' : undefined;
+
   return (
     <Stack direction={'row'} columnGap={0.5}>
       <TextField
+        id={'search-input'}
+        aria-describedby={popperId}
         variant={'outlined'}
         size={'small'}
         placeholder={`Search in ${jsonSelected.name}`}
@@ -73,6 +93,11 @@ export const SearchInput = () => {
           ),
         }}
       />
+      <Popper id={popperId} open={open} anchorEl={anchorEl} placement={'top-start'}>
+        <Paper sx={{ p: 1, bgcolor: 'primary.main' }}>
+          <Typography color={'white.main'}>Type to search</Typography>
+        </Paper>
+      </Popper>
       {!!wordSearchPosition.total && (
         <ButtonGroup variant="outlined" size={'small'}>
           <Button onClick={nextWordFound}>
