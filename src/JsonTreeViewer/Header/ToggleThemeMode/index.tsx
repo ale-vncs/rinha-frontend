@@ -7,7 +7,9 @@ export const ToggleThemeMode = () => {
 
   return (
     <Box position={'fixed'} top={2} right={2}>
-      <IconButton onClick={toggleDarkTheme}>{isDarkTheme ? <ModeNight /> : <WbSunny />}</IconButton>
+      <IconButton onClick={toggleDarkTheme} aria-label={'Toggle Theme'}>
+        {isDarkTheme ? <ModeNight /> : <WbSunny />}
+      </IconButton>
     </Box>
   );
 };
